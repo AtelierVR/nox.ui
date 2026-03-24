@@ -1,0 +1,20 @@
+{
+    "name": "Nox.UI.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "Nox.CCK",
+        "UniTask",
+        "Unity.TextMeshPro",
+        "Nox.UI",
+        "Nox.Widgets"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

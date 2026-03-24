@@ -1,0 +1,21 @@
+{
+    "name": "Nox.Mods.UI",
+    "rootNamespace": "",
+    "references": [
+        "UniTask",
+        "Nox.CCK",
+        "Unity.TextMeshPro",
+        "Nox.UI",
+        "Nox.Widgets",
+        "Nox.UI.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
