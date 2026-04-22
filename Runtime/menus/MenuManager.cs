@@ -72,7 +72,7 @@ namespace Nox.UI.Runtime {
 				.InstantiateAsync<Menu>(container.Container);
 
 			menu.Client          = _client;
-			menu.gameObject.name = $"[{menu.GetType().Name}_{menu.GetInstanceID()}]";
+			menu.gameObject.name = $"[{menu.GetType().Name}_{menu.GetEntityId().GetHashCode()}]";
 			menu.Provider        = container;
 
 			Add(menu);

@@ -52,7 +52,7 @@ namespace Nox.UI.Runtime {
 			if (_content)
 				return _content;
 			_content      = (await PageManager.GetAssetAsync<GameObject>("prefabs/split.prefab")).Instantiate(parent);
-			_content.name = $"[{GetStaticKey()}_{_content.GetInstanceID()}]";
+			_content.name = $"[{GetStaticKey()}_{_content.GetEntityId().GetHashCode()}]";
 			var splitContent = Reference.GetComponent<RectTransform>("content", _content);
 			var containerAsset   = await PageManager.GetAssetAsync<GameObject>("prefabs/container.prefab");
 			var withTitleAsset   = await PageManager.GetAssetAsync<GameObject>("prefabs/with_title.prefab");
@@ -219,7 +219,7 @@ namespace Nox.UI.Runtime {
 				.Where(
 					widget1 => widget1.GetKey() == widget.GetKey()
 						&& (widget is Object widgeto && widget1 is Object wo
-							? wo.GetInstanceID() != widgeto.GetInstanceID()
+							? wo.GetEntityId().GetHashCode() != widgeto.GetEntityId().GetHashCode()
 							: widget1 != widget)
 				);
 			foreach (var existing in listExisting)

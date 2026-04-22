@@ -59,7 +59,7 @@ namespace Nox.UI.Runtime {
 					return;
 				}
 
-				instance.name = elementComponent.GetInstanceID().ToString("x8");
+				instance.name = elementComponent.GetEntityId().GetHashCode().ToString("x8");
 			}
 
 			await elementComponent.SetData(menu, data);

@@ -42,14 +42,14 @@ namespace Nox.UI.Runtime {
 			var keys    = new HashSet<int>();
 
 			foreach (var entry in present)
-				keys.Add(entry.GetInstanceID());
+				keys.Add(entry.GetEntityId().GetHashCode());
 			var prefab = await GetBack();
 
 			// add backs for each present element
 			foreach (var entry in present) {
-				if (backContainer.Find(entry.GetInstanceID().ToString("x8"))) continue;
+				if (backContainer.Find(entry.GetEntityId().GetHashCode().ToString("x8"))) continue;
 				var back = Instantiate(prefab, backContainer);
-				back.name = entry.GetInstanceID().ToString("x8");
+				back.name = entry.GetEntityId().GetHashCode().ToString("x8");
 			}
 
 			// remove backs for each absent element
