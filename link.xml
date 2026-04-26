@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <linker>
+	<assembly fullname="Nox.CCK.UI" preserve="all" />
 	<assembly fullname="Nox.Mods.UI" preserve="all" />
 	<assembly fullname="Nox.UI" preserve="all" />
 	<assembly fullname="Nox.UI.Runtime" preserve="all" />

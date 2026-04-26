@@ -5,6 +5,7 @@ using Nox.UI.Runtime;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Language;
 using Nox.CCK.Mods.Events;
+using Nox.CCK.UI;
 using Nox.CCK.Utils;
 using Nox.UI;
 using Nox.UI.Widgets;

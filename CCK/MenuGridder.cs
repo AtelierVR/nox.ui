@@ -2,9 +2,8 @@ using System.Linq;
 using Nox.CCK.Utils;
 using UnityEngine;
 using Logger = Nox.CCK.Utils.Logger;
-using NoxUpdateLayout = Nox.CCK.Utils.UpdateLayout;
 
-namespace Nox.UI.Runtime {
+namespace Nox.CCK.UI {
 	public class WidgetGrid : MonoBehaviour, IUpdateLayout {
 		public Vector2Int dimensions = new(1, 0);
 		public float      spacing    = 0f;

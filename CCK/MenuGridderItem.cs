@@ -1,10 +1,9 @@
 using System;
 using Nox.CCK.Utils;
 using UnityEngine;
-using UnityEngine.UI;
 using Logger = Nox.CCK.Utils.Logger;
 
-namespace Nox.UI.Runtime {
+namespace Nox.CCK.UI  {
 	public class WidgetGridItem : MonoBehaviour, IUpdateLayout {
 		public WidgetGrid Gridder
 			=> GetComponentInParent<WidgetGrid>();
