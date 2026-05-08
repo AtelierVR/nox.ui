@@ -56,7 +56,6 @@ namespace Nox.CCK.UI {
 
 		public void UpdateContent(WidgetGridItem[] items) {
 			items = items.OrderBy(x => x.index).ToArray();
-			Logger.LogDebug($"Updating grid with {items.Length} items");
 
 			if (dimensions is { x: 0, y: 0 }) return;
 

@@ -15,7 +15,6 @@ namespace Nox.UI.Runtime {
 
 		public void Add(IPage page) {
 			var crt = GetCurrent();
-			Logger.Log($"Add {page.GetKey()} to history {_current} {_cache.Count}");
 			if (_current < _cache.Count - 1)
 				RemoveRange(_current + 1, _cache.Count - _current - 1);
 			_cache.Add(page);
@@ -52,7 +51,6 @@ namespace Nox.UI.Runtime {
 		private void RemoveRange(int v1, int v2) {
 			var old = GetCurrent();
 			while (v2-- > 0) {
-				Logger.Log($"Remove {v1} from history {_current} {_cache.Count}");
 				_cache[v1].OnRemove();
 				_cache.RemoveAt(v1);
 				if (_current > v1)
