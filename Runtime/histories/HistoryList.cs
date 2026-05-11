@@ -58,7 +58,7 @@ namespace Nox.UI.Runtime {
 			}
 
 			var cur = GetCurrent();
-			if (old != cur)
+			if (old != cur && cur != null)
 				_menu.SetPage(cur, old, PageFlags.IsRestore | PageFlags.IsBack).Forget();;
 		}
 
@@ -66,7 +66,6 @@ namespace Nox.UI.Runtime {
 			var crt = GetCurrent();
 			RemoveRange(0, _cache.Count);
 			_current = -1;
-			_menu.SetPage(null, crt, PageFlags.IsBack).Forget();;
 		}
 
 		internal void Restore() {

@@ -250,7 +250,7 @@ namespace Nox.UI.Runtime {
 
 		public void Dispose() {
 			Active = false;
-			History.Clear();
+			History?.Clear();
 			foreach (Transform child in contentContainer)
 				Destroy(child.gameObject);
 			History = null;
@@ -270,6 +270,11 @@ namespace Nox.UI.Runtime {
 
 		public async UniTask SetPage(IPage newPage, IPage oldPage = null, PageFlags flags = PageFlags.None) {
 			try {
+				if (newPage == null) {
+					oldPage?.OnHide(null);
+					return;
+				}
+
 				var content = await newPage.GetContentAsync(contentContainer);
 				if (!content) {
 					Debug.LogError($"Page {newPage.GetKey()} does not have content.");
