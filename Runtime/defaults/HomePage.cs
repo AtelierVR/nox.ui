@@ -152,8 +152,8 @@ namespace Nox.UI.Runtime {
 				.Where(w => w.GetKey() == key)
 				.ToArray();
 			foreach (var widget in widgets)
-				if (widget is Object o)
-					Object.Destroy(o);
+				if (widget is MonoBehaviour mb)
+					Object.Destroy(mb.gameObject);
 			UpdateGridder().Forget();
 		}
 
@@ -164,8 +164,8 @@ namespace Nox.UI.Runtime {
 			List<IWidget> widgets = new();
 
 			foreach (var widget in _widgetContent.GetComponentsInChildren<IWidget>(true))
-				if (widget is Object o)
-					Object.Destroy(o);
+				if (widget is MonoBehaviour mb)
+					Object.Destroy(mb.gameObject);
 
 			Client.Instance.CoreAPI.EventAPI.Emit(
 				"widget_request",
@@ -224,8 +224,8 @@ namespace Nox.UI.Runtime {
 							: widget1 != widget)
 				);
 			foreach (var existing in listExisting)
-				if (existing is Object o)
-					Object.Destroy(o);
+				if (existing is MonoBehaviour mb)
+					Object.Destroy(mb.gameObject);
 			if (widget is not MonoBehaviour w)
 				return;
 			var item = w.GetComponent<WidgetGridItem>();
