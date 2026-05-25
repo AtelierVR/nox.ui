@@ -5,9 +5,9 @@
     "fr.hactazia.ui",
     "ui"
   ],
-  "name": "UI API",
+  "name": "UI",
   "version": "1.0.0",
-  "description": "UI API for Nox",
+  "description": "Core user interface components, layouts, and API for Nox.",
   "license": "GPL-3.0",
   "icon": null,
   "contact": {

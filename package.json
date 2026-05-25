@@ -1,5 +1,6 @@
 {
   "name": "nox.ui",
   "displayName": "Nox - UI",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "description": "Core user interface components, layouts, and API for Nox."
 }
