@@ -23,8 +23,6 @@
       "website": "https://hactazia.fr/"
     }
   ],
-  "contributors": [],
-  "relations": [],
   "entrypoints": {
     "client": [
       "Nox.UI.Runtime.Client",
@@ -36,7 +34,5 @@
     "editor": [
       "Nox.UI.Runtime.Editor"
     ]
-  },
-  "references": [],
-  "permissions": []
+  }
 }
