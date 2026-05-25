@@ -48,7 +48,7 @@ namespace Nox.UI.Runtime {
 			=> await UniTask.WaitUntil(() => IsEnded, cancellationToken: token);
 
 		private async UniTaskVoid AutoDestroyAsync() {
-			await WhenDone();
+			await WhenDone(Source.GetCancellationTokenOnDestroy());
 			_tempOwned?.Destroy();
 		}
 	}
