@@ -23,6 +23,12 @@
       "website": "https://hactazia.fr/"
     }
   ],
+  "relations": [
+    { "id": "nox.cck", "type": "depends", "register": "git+https://github.com/AtelierVR/nox.cck.git" },
+    { "id": "com.cysharp.unitask", "type": "depends", "register": "git+https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask" },
+    { "id": "com.unity.textmeshpro", "type": "depends", "register": "upm:3.0.0" },
+    { "id": "nox.widgets", "type": "depends", "register": "git+https://github.com/AtelierVR/nox.widgets.git" }
+  ],
   "entrypoints": {
     "client": [
       "Nox.UI.Runtime.Client",
