@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Utils;
@@ -13,9 +14,20 @@ namespace Nox.UI.Runtime {
 		internal AudioPlay(AudioSource source, GameObject tempOwned = null) {
 			Source     = source;
 			_tempOwned = tempOwned;
+
+			Main.UiRegister?.OnVolume.AddListener(OnVolumeChanged);
+			Main.UiRegister?.OnMute.AddListener(OnMuteChanged);
+			OnVolumeChanged(1f, Main.UiRegister?.Channel.EffectiveVolume ?? 1f);
+			OnMuteChanged(false, Main.UiRegister?.Channel.IsEffectivelyMuted ?? false);
 		}
 
-		internal void MarkStarted() {
+        private void OnVolumeChanged(float _, float effective)
+			=> Source.volume = effective;
+
+        private void OnMuteChanged(bool _, bool effective)
+			=> Source.mute = effective;
+
+        internal void MarkStarted() {
 			_started = true;
 			if (_tempOwned)
 				AutoDestroyAsync().Forget();
@@ -41,6 +53,8 @@ namespace Nox.UI.Runtime {
 			IsDisposed = true;
 			if (_started)
 				Source.Stop();
+			Main.UiRegister?.OnVolume.RemoveListener(OnVolumeChanged);
+			Main.UiRegister?.OnMute.RemoveListener(OnMuteChanged);
 			_tempOwned?.Destroy();
 		}
 

@@ -1,10 +1,8 @@
 using System.Linq;
 using Nox.CCK.Utils;
-using Nox.UI;
 using Nox.UI.modals;
 using UnityEngine;
 using UnityEngine.Events;
-using Logger = Nox.CCK.Utils.Logger;
 
 namespace Nox.UI.Runtime {
 	public sealed class BaseModal : MonoBehaviour, IModal {

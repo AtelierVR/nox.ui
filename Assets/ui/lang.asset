@@ -21,3 +21,9 @@ MonoBehaviour:
       value: ''
     - key: time
       value: '{1}:{2}'
+    - key: settings.entry.audio.channel.ui
+      value: Interfaces
+  - IETF: fr-FR
+    entries:
+    - key: settings.entry.audio.channel.ui
+      value: Interfaces

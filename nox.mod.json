@@ -23,6 +23,18 @@
       "website": "https://hactazia.fr/"
     }
   ],
+  "relations": [
+    {
+      "id": "ui",
+      "type": "depends"
+    }
+  ],
+  "constraints": [
+    {
+      "type": "after",
+      "id": "audio"
+    }
+  ],
   "entrypoints": {
     "client": [
       "Nox.UI.Runtime.Client",

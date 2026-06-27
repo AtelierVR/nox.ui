@@ -7,7 +7,9 @@
         "Unity.TextMeshPro",
         "Nox.UI",
         "Nox.Widgets",
-        "Nox.CCK.UI"
+        "Nox.CCK.UI",
+        "Nox.Audio",
+        "Nox.CCK.Audio"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
