@@ -23,16 +23,32 @@
       "website": "https://hactazia.fr/"
     }
   ],
-  "relations": [
-    {
-      "id": "ui",
-      "type": "depends"
-    }
-  ],
   "constraints": [
     {
       "type": "after",
       "id": "audio"
+    }
+  ],
+  "relations": [
+    {
+      "id": "audio",
+      "type": "depends",
+      "register": "git+https://github.com/AtelierVR/nox.audio.git"
+    },
+    {
+      "id": "nox.cck",
+      "type": "depends",
+      "register": "git+https://github.com/AtelierVR/nox.cck.git"
+    },
+    {
+      "id": "com.cysharp.unitask",
+      "type": "depends",
+      "register": "git+https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask"
+    },
+    {
+      "id": "com.unity.textmeshpro",
+      "type": "depends",
+      "register": "upm:3.0.0"
     }
   ],
   "entrypoints": {
