@@ -102,7 +102,7 @@ namespace Nox.UI.Runtime {
 		public void SetOptions(Action<string> onValue, Dictionary<string, string[]> options) {
 			Options = options ?? new Dictionary<string, string[]>();
 			foreach (var key in Options.Keys.ToArray()) {
-				if (Options[key] != null && Options[key].Length > 0)
+				if (Options[key]?.Length > 0)
 					continue;
 				Options[key] = new[] { "modal.option." + key };
 			}
