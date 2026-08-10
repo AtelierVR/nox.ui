@@ -17,8 +17,8 @@ namespace Nox.UI.Runtime {
 
 			Main.UiRegister?.OnVolume.AddListener(OnVolumeChanged);
 			Main.UiRegister?.OnMute.AddListener(OnMuteChanged);
-			OnVolumeChanged(1f, Main.UiRegister?.Channel.EffectiveVolume ?? 1f);
-			OnMuteChanged(false, Main.UiRegister?.Channel.IsEffectivelyMuted ?? false);
+			OnVolumeChanged(1f, Main.UiRegister?.Channel?.EffectiveVolume ?? 1f);
+			OnMuteChanged(false, Main.UiRegister?.Channel?.IsEffectivelyMuted ?? false);
 		}
 
         private void OnVolumeChanged(float _, float effective)
