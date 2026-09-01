@@ -23,6 +23,20 @@ namespace Nox.UI.Runtime {
             selector.localRotation = Quaternion.Euler(0f, 0f, angle);
         }
 
+        /// <summary>
+        /// Affiche l'icône de la page courante au centre (masque si null).
+        /// </summary>
+        public void SetIcon(Sprite sprite) {
+            if (Icon == null)
+                return;
+            if (sprite != null) {
+                Icon.sprite = sprite;
+                Icon.gameObject.SetActive(true);
+            } else {
+                Icon.gameObject.SetActive(false);
+            }
+        }
+
         public virtual void ReCenter() {
             offset = 0f;
             if (selector != null)

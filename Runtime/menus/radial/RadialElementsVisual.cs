@@ -11,11 +11,75 @@ namespace Nox.UI.Runtime {
     {
         public CircleLayout layout;
 
+        /// <summary>
+        /// Élément modèle utilisé pour construire les éléments d'une page.
+        /// S'il n'est pas assigné, le premier enfant du layout est utilisé.
+        /// </summary>
+        public RadialElement Template;
+
         private RadialElement _hoveredElement;
+
+        /// <summary>
+        /// Élément actuellement survolé (peut être null).
+        /// </summary>
+        public RadialElement HoveredElement
+            => _hoveredElement;
 
         private void Awake() {
             if (layout == null)
                 layout = GetComponentInChildren<CircleLayout>(true);
+        }
+
+        /// <summary>
+        /// Reconstruit les éléments du layout à partir d'une page radiale.
+        /// Le modèle (template) est dupliqué pour chaque élément de la page.
+        /// </summary>
+        public void SetPage(IRadialPage page) {
+            if (layout == null)
+                layout = GetComponentInChildren<CircleLayout>(true);
+
+            var template = GetTemplate();
+            if (template == null)
+                return;
+
+            // Détruit les éléments existants (sauf le template).
+            for (int i = layout.transform.childCount - 1; i >= 0; i--) {
+                var child = layout.transform.GetChild(i);
+                if (child == template.transform || child.GetComponent<RadialElement>() == null)
+                    continue;
+                if (Application.isPlaying)
+                    Destroy(child.gameObject);
+                else
+                    DestroyImmediate(child.gameObject);
+            }
+
+            var elements = page != null ? page.GetElements() : Array.Empty<RadialPageElement>();
+
+            // Le template est masqué et sert uniquement de modèle.
+            template.gameObject.SetActive(false);
+
+            for (int i = 0; i < elements.Length; i++) {
+                var instance = Instantiate(template.gameObject, layout.transform);
+                instance.SetActive(true);
+                instance.name = $"E_{i + 1}_{elements[i].label}";
+                var element = instance.GetComponent<RadialElement>();
+                if (element != null)
+                    element.SetData(elements[i]);
+            }
+
+            SetHover(null);
+            layout.Arrange();
+        }
+
+        private RadialElement GetTemplate() {
+            if (Template != null)
+                return Template;
+            for (int i = 0; i < layout.transform.childCount; i++) {
+                var element = layout.transform.GetChild(i).GetComponent<RadialElement>();
+                if (element != null)
+                    return element;
+            }
+            return null;
         }
 
         public RadialElement[] GetElements() {
