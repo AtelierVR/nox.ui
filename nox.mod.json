@@ -49,6 +49,11 @@
       "id": "com.unity.textmeshpro",
       "type": "depends",
       "register": "upm:3.0.0"
+    },
+    {
+      "id": "com.unity.inputsystem",
+      "type": "depends",
+      "register": "upm:1.19.0"
     }
   ],
   "entrypoints": {
