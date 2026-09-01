@@ -2,6 +2,8 @@
 	"name": "Nox.CCK.UI",
 	"references":[ 
 		"Nox.CCK",
-		"UniTask"
+		"Nox.UI",
+		"UniTask",
+		"Unity.InputSystem"
 	]
 }

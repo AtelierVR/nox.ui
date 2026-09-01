@@ -9,7 +9,8 @@
         "Nox.Widgets",
         "Nox.CCK.UI",
         "Nox.Audio",
-        "Nox.CCK.Audio"
+        "Nox.CCK.Audio",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

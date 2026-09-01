@@ -43,6 +43,9 @@ namespace Nox.UI.Runtime {
 		public async UniTask<IMenu> Make(IMenuProvider container)
 			=> await Manager.Make(container);
 
+		public async UniTask<IRadialMenu> MakeRadial(IRadialMenuProvider container)
+			=> await Manager.MakeRadial(container);
+
 		public void SendGoto(int menuId, string key, params object[] args)
 			=> PageManager.SendGoto(menuId, key, args);
 

@@ -42,6 +42,13 @@ namespace Nox.UI {
 		public UniTask<IMenu> Make(IMenuProvider container);
 
 		/// <summary>
+		/// Create a radial menu.
+		/// </summary>
+		/// <param name="container"></param>
+		/// <returns></returns>
+		public UniTask<IRadialMenu> MakeRadial(IRadialMenuProvider container);
+
+		/// <summary>
 		/// Sends a goto event to the menu with the specified ID and key.
 		/// </summary>
 		/// <param name="menuId"></param>
