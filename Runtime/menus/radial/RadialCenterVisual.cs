@@ -38,9 +38,9 @@ namespace Nox.UI.Runtime {
         }
 
         public virtual void ReCenter() {
-            offset = 0f;
-            if (selector != null)
-                selector.localRotation = Quaternion.identity;
+            if (selector == null)
+                return;
+            selector.localRotation = Quaternion.identity;
         }
     }
 }
