@@ -16,10 +16,35 @@ namespace Nox.CCK.UI {
         private bool _click;
         private bool _recenterPending = true;
 
+#if UNITY_EDITOR
+        private bool _disengaged;
+
+        private static bool EscapePressed()
+            => Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame;
+#endif
+
         public override Vector2 Orientation => _orientation;
         public override bool Click => _click;
 
         private void Update() {
+            // App sans focus (clic hors de la Game view, Alt-Tab...) : on n'accumule
+            // pas la sélection et on ne téléporte surtout pas le curseur, sinon il
+            // devient impossible d'utiliser les autres fenêtres (téléport en boucle).
+            if (!Application.isFocused) {
+                // Ignorera le prochain delta au retour du focus.
+                _recenterPending = true;
+                return;
+            }
+
+#if UNITY_EDITOR
+            // Éditeur : Échap libère le curseur (sortie de play, pause, autre vue...).
+            // On cesse de téléporter la souris jusqu'au prochain ReCenter (réouverture).
+            if (_disengaged || EscapePressed()) {
+                _disengaged = true;
+                return;
+            }
+#endif
+
             Refresh();
 
             // Téléporte le curseur au centre du radial (après avoir lu le delta).
@@ -73,6 +98,9 @@ namespace Nox.CCK.UI {
             _orientation = Vector2.zero;
             _click = false;
             _recenterPending = true;
+#if UNITY_EDITOR
+            _disengaged = false;
+#endif
         }
     }
 }

@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Nox.UI.Runtime {
 	/// <summary>
 	/// Détermine l'élément survolé parmi les RadialElement du CircleLayout enfant,
-	/// selon l'orientation de la sélection.
+	/// selon l'orientation de la sélection, et reconstruit les éléments d'une page.
 	/// </summary>
 	public class RadialElementsVisual : MonoBehaviour
     {
@@ -31,10 +30,10 @@ namespace Nox.UI.Runtime {
         }
 
         /// <summary>
-        /// Reconstruit les éléments du layout à partir d'une page radiale.
-        /// Le modèle (template) est dupliqué pour chaque élément de la page.
+        /// Reconstruit les éléments du layout à partir des données produites par
+        /// <see cref="RadialGenerator"/> (navigation + éléments de la page).
         /// </summary>
-        public void SetPage(IRadialPage page) {
+        public void SetItems(RadialElementData[] items) {
             if (layout == null)
                 layout = GetComponentInChildren<CircleLayout>(true);
 
@@ -53,18 +52,18 @@ namespace Nox.UI.Runtime {
                     DestroyImmediate(child.gameObject);
             }
 
-            var elements = page != null ? page.GetElements() : Array.Empty<RadialPageElement>();
+            var list = items ?? Array.Empty<RadialElementData>();
 
             // Le template est masqué et sert uniquement de modèle.
             template.gameObject.SetActive(false);
 
-            for (int i = 0; i < elements.Length; i++) {
+            for (int i = 0; i < list.Length; i++) {
                 var instance = Instantiate(template.gameObject, layout.transform);
                 instance.SetActive(true);
-                instance.name = $"E_{i + 1}_{elements[i].label}";
+                instance.name = $"E_{i + 1}_{list[i].label}";
                 var element = instance.GetComponent<RadialElement>();
                 if (element != null)
-                    element.SetData(elements[i]);
+                    element.SetData(list[i]);
             }
 
             SetHover(null);
@@ -86,7 +85,7 @@ namespace Nox.UI.Runtime {
             if (layout == null)
                 return Array.Empty<RadialElement>();
 
-            var elements = new List<RadialElement>();
+            var elements = new System.Collections.Generic.List<RadialElement>();
             for (int i = 0; i < layout.transform.childCount; i++) {
                 var element = layout.transform.GetChild(i).GetComponent<RadialElement>();
                 if (element != null)

@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Nox.UI.Runtime;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Mods.Cores;
 using Nox.CCK.Mods.Events;
 using Nox.CCK.Utils;
-using Nox.UI;
 
 namespace Nox.UI.Runtime {
 	public class PageManager : INoxObject, IDisposable {
 		public const string GotoEvent    = "menu_goto";
 		public const string ActionEvent  = "menu_action";
 		public const string DisplayEvent = "menu_display";
+
+		public const string RadialGotoEvent    = "radial_goto";
+		public const string RadialDisplayEvent = "radial_display";
 
 		private readonly EventSubscription[] _events;
 		private readonly Client              _client;
@@ -22,6 +23,7 @@ namespace Nox.UI.Runtime {
 			_events = new[] {
 				_client.CoreAPI.EventAPI.Subscribe(DisplayEvent, OnDisplay),
 				_client.CoreAPI.EventAPI.Subscribe(ActionEvent, OnAction),
+				_client.CoreAPI.EventAPI.Subscribe(RadialDisplayEvent, OnRadialDisplay),
 			};
 		}
 
@@ -45,6 +47,12 @@ namespace Nox.UI.Runtime {
 			=> GetCoreAPI()
 				.EventAPI.Emit(
 					GotoEvent, new object[] { menuId, key }.Concat(args).ToArray()
+				);
+
+		public static void SendRadialGoto(int menuId, string path, params object[] args)
+			=> GetCoreAPI()
+				.EventAPI.Emit(
+					RadialGotoEvent, new object[] { menuId, path }.Concat(args).ToArray()
 				);
 
 		private void OnAction(EventData context) {
@@ -76,6 +84,14 @@ namespace Nox.UI.Runtime {
 			if (context.TryGet(1, out Dictionary<string, object> data))
 				page = ActionPage.From(data);
 			if (page == null) return;
+			menu.Go(page);
+		}
+
+		private void OnRadialDisplay(EventData context) {
+			if (!context.TryGet(0, out int id)) return;
+			var menu = _client.Manager.GetRadial(id);
+			if (menu == null) return;
+			if (!context.TryGet(1, out IRadialPage page)) return;
 			menu.Go(page);
 		}
 

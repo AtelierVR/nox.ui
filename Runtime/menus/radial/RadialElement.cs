@@ -1,13 +1,15 @@
 using System.Collections;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Nox.UI.Runtime {
 	/// <summary>
-	/// Élément d'un menu radial : gère l'état survolé,
-	/// joue un rebond vers l'extérieur (sans resize) et pilote le paramètre Animator "Hover".
-	/// Porte aussi les données de la page (<see cref="RadialPageElement"/>) pour afficher
-	/// l'icône et le libellé.
+	/// Élément visuel d'un menu radial : gère l'état survolé, joue un rebond vers
+	/// l'extérieur et pilote le paramètre Animator "Hover". Affiche les données
+	/// runtime produites par <see cref="RadialGenerator"/> (libellé + icône) et
+	/// exécute l'action au clic.
 	/// </summary>
 	[DisallowMultipleComponent]
 	public class RadialElement : MonoBehaviour
@@ -24,10 +26,8 @@ namespace Nox.UI.Runtime {
         private Image _icon;
         private TMPro.TextMeshProUGUI _text;
 
-        /// <summary>
-        /// Données de la page associées à cet élément (peut être null).
-        /// </summary>
-        public RadialPageElement Data { get; private set; }
+        /// <summary>Données runtime affichées par cet élément (peut être null).</summary>
+        public RadialElementData Data { get; private set; }
 
         public bool Hovered {
             get => _hovered;
@@ -45,22 +45,41 @@ namespace Nox.UI.Runtime {
         }
 
         /// <summary>
-        /// Assigne les données de la page et rafraîchit l'icône et le libellé.
+        /// Assigne les données de l'élément et rafraîchit l'icône et le libellé.
         /// </summary>
-        public void SetData(RadialPageElement data) {
+        public void SetData(RadialElementData data) {
             Data = data;
-
-            if (_icon != null) {
-                if (data != null && data.icon != null) {
-                    _icon.sprite = data.icon;
-                    _icon.gameObject.SetActive(true);
-                } else {
-                    _icon.gameObject.SetActive(false);
-                }
-            }
 
             if (_text != null)
                 _text.text = data != null ? data.label : string.Empty;
+
+            UpdateIcon(data).Forget();
+        }
+
+        /// <summary>Exécute l'action de l'élément (no-op si l'élément n'est pas cliquable).</summary>
+        public UniTask RunClick(CancellationToken token = default)
+            => Data?.click != null ? Data.click(token) : UniTask.CompletedTask;
+
+        private async UniTaskVoid UpdateIcon(RadialElementData data) {
+            if (_icon == null)
+                return;
+
+            if (data == null) {
+                _icon.gameObject.SetActive(false);
+                return;
+            }
+
+            var sprite = await data.icon;
+            // L'élément a pu être détruit ou réassigné pendant le chargement.
+            if (_icon == null || Data != data)
+                return;
+
+            if (sprite != null) {
+                _icon.sprite = sprite;
+                _icon.gameObject.SetActive(true);
+            } else {
+                _icon.gameObject.SetActive(false);
+            }
         }
 
         private Image FindChildImage(string name) {

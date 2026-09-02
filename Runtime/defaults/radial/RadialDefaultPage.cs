@@ -1,112 +1,87 @@
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Logger = Nox.CCK.Utils.Logger;
 
 namespace Nox.UI.Runtime {
 	/// <summary>
-	/// Page radiale par défaut. Propose des sous-pages (Settings, Audio)
-	/// et une action de fermeture. C'est un exemple de page : chaque élément
-	/// est décrit par une icône (Sprite), un libellé, un type et des données libres.
+	/// Page radiale par défaut (exemple). Ne fournit que des éléments de contenu ;
+	/// l'élément de navigation (Close/Back) est ajouté par <see cref="RadialGenerator"/>.
 	/// </summary>
 	public class RadialDefaultPage : IRadialPage {
-		private IRadialMenu _menu;
-
-		/// <summary>
-		/// Crée une instance par menu (chaque menu a sa propre page racine).
-		/// </summary>
 		public static RadialDefaultPage Create()
-			=> new RadialDefaultPage();
+			=> new();
 
-		public string GetKey()
-			=> "radial_home";
+		public string Key
+			=> "home";
 
-		public Sprite GetCenterIcon()
+		public object[] Context
+			=> Array.Empty<object>();
+
+		public IRadialMenu Menu
 			=> null;
 
-		public RadialPageElement[] GetElements()
-			=> new[] {
-				new RadialPageElement(null, "Settings", RadialElementType.Page, new RadialSettingsPage()),
-				new RadialPageElement(null, "Audio",    RadialElementType.Page, new RadialAudioPage()),
-				new RadialPageElement(null, "Close",    RadialElementType.Button),
+		public IRadialElement[] Content
+			=> new IRadialElement[] {
+				new DefaultElement(
+					new[] { "radial.default.example" },
+					null,
+					new DefaultTrigger(_ => {
+						Logger.LogDebug("[radial] exemple");
+						return UniTask.CompletedTask;
+					})
+				),
 			};
 
-		public void Initialize(IRadialMenu menu)
-			=> _menu = menu;
+		public void OnOpen(IRadialPage lastPage) { }
 
-		public void OnOpen(IRadialPage previous) { }
+		public void OnRestore(IRadialPage lastPage) { }
 
-		public void OnClose(IRadialPage next) { }
+		public void OnRefresh() { }
 
-		public void OnElementClick(RadialPageElement element) {
-			if (element.label == "Close" && _menu != null)
-				_menu.Active = false;
-		}
+		public void OnRemove() { }
+
+		public void OnDisplay(IRadialPage lastPage) { }
+
+		public void OnHide(IRadialPage nextPage) { }
 	}
 
-	/// <summary>
-	/// Sous-page d'exemple : montre un élément Back (retour à la page précédente)
-	/// et des boutons avec données.
-	/// </summary>
-	public class RadialSettingsPage : IRadialPage {
-		private IRadialMenu _menu;
+	/// <summary>Élément radial minimal (implémentation d'exemple, Runtime).</summary>
+	public class DefaultElement : IRadialElement {
+		private readonly string[] _label;
+		private readonly UniTask<Sprite> _icon;
+		private readonly IRadialElementAction _action;
 
-		public string GetKey()
-			=> "radial_settings";
-
-		public Sprite GetCenterIcon()
-			=> null;
-
-		public RadialPageElement[] GetElements()
-			=> new[] {
-				new RadialPageElement(null, "Back",   RadialElementType.Back),
-				new RadialPageElement(null, "Volume", RadialElementType.Button, 0.5f),
-				new RadialPageElement(null, "Reset",  RadialElementType.Button),
-			};
-
-		public void Initialize(IRadialMenu menu)
-			=> _menu = menu;
-
-		public void OnOpen(IRadialPage previous) { }
-
-		public void OnClose(IRadialPage next) { }
-
-		public void OnElementClick(RadialPageElement element) {
-			if (element.label == "Volume")
-				Logger.LogDebug($"Volume clicked, data={element.Get<float>()}");
-			else if (element.label == "Reset" && _menu != null)
-				_menu.Active = false;
+		public DefaultElement(string[] label, Sprite icon, IRadialElementAction action = null) {
+			_label  = label;
+			_icon   = UniTask.FromResult(icon);
+			_action = action;
 		}
+
+		public string[] Label
+			=> _label;
+
+		public UniTask<Sprite> Icon
+			=> _icon;
+
+		public IRadialElementAction Action
+			=> _action;
 	}
 
-	/// <summary>
-	/// Sous-page d'exemple.
-	/// </summary>
-	public class RadialAudioPage : IRadialPage {
-		private IRadialMenu _menu;
+	/// <summary>Action déclencheur minimale (implémentation d'exemple, Runtime).</summary>
+	public class DefaultTrigger : ITriggerAction {
+		private readonly Func<CancellationToken, UniTask> _execute;
 
-		public string GetKey()
-			=> "radial_audio";
+		public DefaultTrigger(Func<CancellationToken, UniTask> execute)
+			=> _execute = execute;
+		
+		public int DelayBeforeExecution
+			=> 0;
 
-		public Sprite GetCenterIcon()
-			=> null;
-
-		public RadialPageElement[] GetElements()
-			=> new[] {
-				new RadialPageElement(null, "Back",   RadialElementType.Back),
-				new RadialPageElement(null, "Master", RadialElementType.Button),
-				new RadialPageElement(null, "Mute",   RadialElementType.Button),
-			};
-
-		public void Initialize(IRadialMenu menu)
-			=> _menu = menu;
-
-		public void OnOpen(IRadialPage previous) { }
-
-		public void OnClose(IRadialPage next) { }
-
-		public void OnElementClick(RadialPageElement element) {
-			Logger.LogDebug($"[{GetKey()}] clicked {element.label}");
-			if (element.label == "Mute" && _menu != null)
-				_menu.Active = false;
-		}
+		public UniTask Execute(CancellationToken cancellationToken = default)
+			=> _execute != null 
+                ? _execute(cancellationToken) 
+                : UniTask.CompletedTask;
 	}
 }

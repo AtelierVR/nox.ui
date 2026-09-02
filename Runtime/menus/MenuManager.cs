@@ -54,6 +54,9 @@ namespace Nox.UI.Runtime {
 		public bool HasRadial(int id)
 			=> _radialMenus.Any(m => m.Id == id);
 
+		public IRadialMenu GetRadial(int id)
+			=> _radialMenus.Find(m => m.Id == id);
+
 		public void AddRadial(IRadialMenu menu) {
 			if (HasRadial(menu.Id))
 				return;
@@ -116,6 +119,7 @@ namespace Nox.UI.Runtime {
 
 			menu.gameObject.name = $"[{menu.GetType().Name}_{menu.GetEntityId().GetHashCode()}]";
 			menu.Provider        = container;
+			menu.Client          = _client;
 
 			AddRadial(menu);
 			return menu;

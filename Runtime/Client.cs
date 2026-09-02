@@ -49,6 +49,9 @@ namespace Nox.UI.Runtime {
 		public void SendGoto(int menuId, string key, params object[] args)
 			=> PageManager.SendGoto(menuId, key, args);
 
+		public void SendRadialGoto(int menuId, string path, params object[] args)
+			=> PageManager.SendRadialGoto(menuId, path, args);
+
 		public void SendAction(int menuId, string action, int move = 0)
 			=> PageManager.SendAction(menuId, action, move);
 

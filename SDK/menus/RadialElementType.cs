@@ -16,6 +16,18 @@ namespace Nox.UI {
 		Back,
 
 		/// <summary>
+		/// Ferme le menu radial.
+		/// </summary>
+		Close,
+
+		/// <summary>
+		/// Navigation vers un sous-chemin : le chemin cible est fourni dans
+		/// <see cref="RadialPageElement.data"/>[0] (un <c>string</c>). Un
+		/// "radial_goto" est alors émis pour ce chemin.
+		/// </summary>
+		Menu,
+
+		/// <summary>
 		/// Navigation vers une sous-page. La page cible est fournie
 		/// dans <see cref="RadialPageElement.data"/>[0] (un <see cref="IRadialPage"/>).
 		/// </summary>

@@ -23,7 +23,15 @@ MonoBehaviour:
       value: '{1}:{2}'
     - key: settings.entry.audio.channel.ui
       value: Interfaces
+    - key: radial.back
+      value: Back
+    - key: radial.close
+      value: Close
   - IETF: fr-FR
     entries:
     - key: settings.entry.audio.channel.ui
       value: Interfaces
+    - key: radial.back
+      value: Retour
+    - key: radial.close
+      value: Fermer
