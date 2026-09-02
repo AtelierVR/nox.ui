@@ -6,7 +6,7 @@
     "ui"
   ],
   "name": "UI",
-  "version": "1.0.0",
+  "version": "1.0.x",
   "description": "Core user interface components, layouts, and API for Nox.",
   "license": "GPL-3.0",
   "icon": null,
