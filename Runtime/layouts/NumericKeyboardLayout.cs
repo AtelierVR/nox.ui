@@ -148,12 +148,10 @@ namespace Nox.UI {
 		}
 
 		public void Cleanup() {
-			foreach (var key in _createdKeys) {
-				if (key != null) {
-					DestroyImmediate(key);
-				}
-			}
-			_createdKeys.Clear();
+			foreach (var key in _createdKeys)
+                if (key != null)
+                    key.DestroyImmediate();
+            _createdKeys.Clear();
 			
 			Logger.LogDebug("Numeric layout cleaned up");
 		}
@@ -214,14 +212,16 @@ namespace Nox.UI {
 		private GameObject CreateKey(string keyValue, Transform parent) {
 			try {
 				bool isActionKey = _actionKeys.Contains(keyValue);
-				GameObject prefab = isActionKey ? specialKeyPrefab : keyPrefab;
+				var prefab = isActionKey 
+					? specialKeyPrefab 
+					: keyPrefab;
 				
 				if (prefab == null) {
 					Logger.LogWarning($"No prefab available for key: {keyValue}");
 					return null;
 				}
 
-				GameObject keyObj = Instantiate(prefab, parent);
+				var keyObj = prefab.Instantiate(parent);
 				keyObj.name = $"NumKey_{keyValue}";
 
 				// Set up the key appearance

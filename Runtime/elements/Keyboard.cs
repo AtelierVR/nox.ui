@@ -519,11 +519,9 @@ namespace Nox.UI {
 		}
 
 		private void ClearKeys() {
-			foreach (var key in _instantiatedKeys) {
-				if (key != null) {
-					DestroyImmediate(key);
-				}
-			}
+			foreach (var key in _instantiatedKeys) 
+				if (key != null) 
+					key.DestroyImmediate();
 			_instantiatedKeys.Clear();
 		}
 

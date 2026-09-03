@@ -60,7 +60,8 @@ namespace Nox.UI.Runtime {
                     // d'une (ré)ouverture, pas à chaque changement de page (voir Show).
                     selection?.ReCenter();
                     center?.ReCenter();
-                    _wasClicking = false;
+                    _wasClicking = selection != null 
+                        && selection.Click;
 
                     // Rafraîchit la page (chemin courant ou page par défaut) pour
                     // refléter l'état courant (ex. avatar porté/changé).
@@ -156,7 +157,11 @@ namespace Nox.UI.Runtime {
                 await RadialGenerator.Build(this, page);
             DisplayPageIcon(page);
 
-            _wasClicking = false;
+            // Préserve l'état de clic courant pour éviter qu'un clic maintenu lors
+            // d'une transition de page ne soit réinterprété comme un nouveau clic
+            // sur la nouvelle page (ex. fermeture/retour immédiat en 1 frame).
+            _wasClicking = selection != null 
+                && selection.Click;
         }
 
         /// <summary>

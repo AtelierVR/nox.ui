@@ -31,14 +31,7 @@ namespace Nox.UI.Runtime {
 			foreach (var el in GetChildren()) {
 				if (el.GetData().Key != key)
 					continue;
-				#if UNITY_EDITOR
-				if (Application.isPlaying)
-					Destroy(el.gameObject);
-				else
-					UnityEditor.EditorApplication.delayCall += () => DestroyImmediate(el.gameObject);
-				#else
-				Destroy(el.gameObject);
-				#endif
+				el.gameObject.Destroy();
 			}
 		}
 
@@ -50,7 +43,7 @@ namespace Nox.UI.Runtime {
 
 			if (!elementComponent) {
 				prefab = await GetPrefab();
-				var instance = Instantiate(prefab, container);
+				var instance = prefab.Instantiate(container);
 				elementComponent = instance.GetComponent<Element>();
 
 				if (!elementComponent) {

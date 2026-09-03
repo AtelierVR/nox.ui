@@ -149,12 +149,9 @@ namespace Nox.UI.Runtime {
 		}
 
 		public void Cleanup() {
-			foreach (var key in _createdKeys) {
-				if (key != null) {
-					DestroyImmediate(key);
-				}
-			}
-
+			foreach (var key in _createdKeys)
+				if (key != null)
+					key.DestroyImmediate();
 			_createdKeys.Clear();
 
 			Logger.LogDebug("QWERTY layout cleaned up");
@@ -199,14 +196,14 @@ namespace Nox.UI.Runtime {
 		private GameObject CreateKey(string keyValue, Transform parent) {
 			try {
 				bool       isSpecialKey = _specialKeys.Contains(keyValue);
-				GameObject prefab       = isSpecialKey ? specialKeyPrefab : keyPrefab;
+				var prefab       = isSpecialKey ? specialKeyPrefab : keyPrefab;
 
 				if (prefab == null) {
 					Logger.LogWarning($"No prefab available for key: {keyValue}");
 					return null;
 				}
 
-				GameObject keyObj = Instantiate(prefab, parent);
+				var keyObj = prefab.Instantiate(parent);
 				keyObj.name = $"Key_{keyValue}";
 
 				// Set up the key appearance

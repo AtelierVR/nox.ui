@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using Nox.CCK.Utils;
 using UnityEngine;
 
 namespace Nox.UI.Runtime {
@@ -49,27 +50,26 @@ namespace Nox.UI.Runtime {
             if (template == null)
                 return;
 
-            // Détruit les éléments existants.
             for (int i = layout.transform.childCount - 1; i >= 0; i--) {
                 var child = layout.transform.GetChild(i);
                 if (child.GetComponent<RadialElement>() == null)
                     continue;
-                if (Application.isPlaying)
-                    Destroy(child.gameObject);
-                else
-                    DestroyImmediate(child.gameObject);
+                child.gameObject.SetActive(false);
+                child.SetParent(null);
+                child.gameObject.Destroy();
             }
 
             var list = items ?? Array.Empty<RadialElementData>();
 
             for (int i = 0; i < list.Length; i++) {
-                var instance = Instantiate(template, layout.transform);
+                var instance = template.Instantiate(layout.transform);
                 instance.name = $"E_{i + 1}_{list[i].label}";
                 var element = instance.GetComponent<RadialElement>();
                 if (element != null)
                     element.SetData(list[i]);
             }
 
+            Canvas.ForceUpdateCanvases();
             SetHover(null);
             layout.Arrange();
         }

@@ -48,7 +48,7 @@ namespace Nox.UI.Runtime {
 			// add backs for each present element
 			foreach (var entry in present) {
 				if (backContainer.Find(entry.GetEntityId().GetHashCode().ToString("x8"))) continue;
-				var back = Instantiate(prefab, backContainer);
+				var back = prefab.Instantiate(backContainer);
 				back.name = entry.GetEntityId().GetHashCode().ToString("x8");
 			}
 

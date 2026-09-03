@@ -247,7 +247,7 @@ namespace Nox.UI.Runtime {
 			Active = false;
 			History?.Clear();
 			foreach (Transform child in contentContainer)
-				Destroy(child.gameObject);
+				child.gameObject.Destroy();
 			History = null;
 		}
 
