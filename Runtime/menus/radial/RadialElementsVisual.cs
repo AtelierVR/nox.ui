@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Nox.UI.Runtime {
@@ -8,13 +9,10 @@ namespace Nox.UI.Runtime {
 	/// </summary>
 	public class RadialElementsVisual : MonoBehaviour
     {
-        public CircleLayout layout;
+        /// <summary>Ressource du prefab modèle d'un élément radial.</summary>
+        public const string ElementPrefabPath = "ui:prefabs/radial_element.prefab";
 
-        /// <summary>
-        /// Élément modèle utilisé pour construire les éléments d'une page.
-        /// S'il n'est pas assigné, le premier enfant du layout est utilisé.
-        /// </summary>
-        public RadialElement Template;
+        public CircleLayout layout;
 
         private RadialElement _hoveredElement;
 
@@ -30,21 +28,31 @@ namespace Nox.UI.Runtime {
         }
 
         /// <summary>
-        /// Reconstruit les éléments du layout à partir des données produites par
-        /// <see cref="RadialGenerator"/> (navigation + éléments de la page).
+        /// Prefab modèle d'un élément radial, chargé depuis
+        /// <see cref="ElementPrefabPath"/>.
         /// </summary>
-        public void SetItems(RadialElementData[] items) {
+        public async UniTask<GameObject> GetTemplate() {
+            var prefab = await PageManager.GetAssetAsync<GameObject>(ElementPrefabPath);
+            return prefab;
+        }
+
+        /// <summary>
+        /// Reconstruit les éléments du layout à partir des données produites par
+        /// <see cref="RadialGenerator"/> (navigation + éléments de la page). Le
+        /// modèle est le prefab renvoyé par <see cref="GetTemplate"/>.
+        /// </summary>
+        public async UniTask SetItems(RadialElementData[] items) {
             if (layout == null)
                 layout = GetComponentInChildren<CircleLayout>(true);
 
-            var template = GetTemplate();
+            var template = await GetTemplate();
             if (template == null)
                 return;
 
-            // Détruit les éléments existants (sauf le template).
+            // Détruit les éléments existants.
             for (int i = layout.transform.childCount - 1; i >= 0; i--) {
                 var child = layout.transform.GetChild(i);
-                if (child == template.transform || child.GetComponent<RadialElement>() == null)
+                if (child.GetComponent<RadialElement>() == null)
                     continue;
                 if (Application.isPlaying)
                     Destroy(child.gameObject);
@@ -54,12 +62,8 @@ namespace Nox.UI.Runtime {
 
             var list = items ?? Array.Empty<RadialElementData>();
 
-            // Le template est masqué et sert uniquement de modèle.
-            template.gameObject.SetActive(false);
-
             for (int i = 0; i < list.Length; i++) {
-                var instance = Instantiate(template.gameObject, layout.transform);
-                instance.SetActive(true);
+                var instance = Instantiate(template, layout.transform);
                 instance.name = $"E_{i + 1}_{list[i].label}";
                 var element = instance.GetComponent<RadialElement>();
                 if (element != null)
@@ -68,17 +72,6 @@ namespace Nox.UI.Runtime {
 
             SetHover(null);
             layout.Arrange();
-        }
-
-        private RadialElement GetTemplate() {
-            if (Template != null)
-                return Template;
-            for (int i = 0; i < layout.transform.childCount; i++) {
-                var element = layout.transform.GetChild(i).GetComponent<RadialElement>();
-                if (element != null)
-                    return element;
-            }
-            return null;
         }
 
         public RadialElement[] GetElements() {

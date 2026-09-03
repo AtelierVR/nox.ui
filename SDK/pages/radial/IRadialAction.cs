@@ -28,6 +28,14 @@ namespace Nox.UI
 		/// </summary>
 		int DelayBeforeExecution
 			=> 0;
+
+		/// <summary>
+		/// Indique si l'action est actuellement "active" (ex. un toggle activé).
+		/// Sert à piloter l'état visuel "Active" de l'élément (paramètre Animator
+		/// "Active", comme "Hover" pour le survol).
+		/// </summary>
+		bool IsActive
+			=> false;
 	}
 
 	/// <summary>

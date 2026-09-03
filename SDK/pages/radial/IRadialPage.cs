@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Nox.UI {
@@ -23,6 +24,20 @@ namespace Nox.UI {
 		/// </summary>
 		/// <returns></returns>
 		public IRadialMenu Menu { get; }
+
+		/// <summary>
+		/// Label de la page (clé de langue + arguments, comme <see cref="IRadialElement.Label"/>).
+		/// Non utilisé pour le moment (réservé à un affichage futur).
+		/// </summary>
+		public string[] Label
+			=> Array.Empty<string>();
+
+		/// <summary>
+		/// Icône de la page, affichée au centre du radial quand la page est montrée.
+		/// Peut être null ou un chargement différé (UniTask).
+		/// </summary>
+		public UniTask<Sprite> Icon
+			=> UniTask.FromResult<Sprite>(null);
 
 		/// <summary>
 		/// Make or return <see cref="GameObject"/> for the content of the page.

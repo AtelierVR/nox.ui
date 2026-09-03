@@ -32,7 +32,7 @@ namespace Nox.UI.Runtime {
 		/// Prépare le menu radial pour une page : élément de navigation (Back/Close)
 		/// puis les éléments fournis par la page.
 		/// </summary>
-		public static void Build(RadialMenu menu, IRadialPage page) {
+		public static async UniTask Build(RadialMenu menu, IRadialPage page) {
 			if (menu == null || menu.elements == null)
 				return;
 
@@ -46,7 +46,7 @@ namespace Nox.UI.Runtime {
 				if (element != null)
 					items.Add(FromElement(menu, element));
 
-			menu.elements.SetItems(items.ToArray());
+			await menu.elements.SetItems(items.ToArray());
 		}
 
 		private static RadialElementData FromElement(RadialMenu menu, IRadialElement element) {
@@ -54,6 +54,8 @@ namespace Nox.UI.Runtime {
 			return new() {
 				label = Localize(element.Label),
 				icon = element.Icon,
+				active = action?.IsActive ?? false,
+				delay = action?.DelayBeforeExecution ?? 0,
 				click = action switch {
 					IPageAction page => ct => ExecutePage(menu, page, ct),
 					null => null,

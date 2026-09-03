@@ -56,7 +56,10 @@ namespace Nox.UI.Runtime {
 
                 if (value) {
                     // Réinitialise la sélection (accumulation souris) à l'ouverture.
+                    // Le curseur central revient à sa position par défaut UNIQUEMENT lors
+                    // d'une (ré)ouverture, pas à chaque changement de page (voir Show).
                     selection?.ReCenter();
+                    center?.ReCenter();
                     _wasClicking = false;
 
                     // Rafraîchit la page (chemin courant ou page par défaut) pour
@@ -106,7 +109,7 @@ namespace Nox.UI.Runtime {
                 _forward.Clear();
             }
 
-            Show(page, false);
+            Show(page, false).Forget();
         }
 
         public void GoBack(int count = 1) {
@@ -114,7 +117,7 @@ namespace Nox.UI.Runtime {
                 var page = _history.Pop();
                 if (_currentPage != null)
                     _forward.Push(_currentPage);
-                Show(page, true);
+                Show(page, true).Forget();
             }
         }
 
@@ -123,7 +126,7 @@ namespace Nox.UI.Runtime {
                 var page = _forward.Pop();
                 if (_currentPage != null)
                     _history.Push(_currentPage);
-                Show(page, true);
+                Show(page, true).Forget();
             }
         }
 
@@ -138,7 +141,7 @@ namespace Nox.UI.Runtime {
             Client.SendRadialGoto(Id, path);
         }
 
-        private void Show(IRadialPage page, bool restore) {
+        private async UniTask Show(IRadialPage page, bool restore) {
             var old = _currentPage;
             _currentPage = page;
 
@@ -150,12 +153,36 @@ namespace Nox.UI.Runtime {
             page.OnDisplay(old);
 
             if (elements != null)
-                RadialGenerator.Build(this, page);
-            if (center != null)
-                center.SetIcon(null);
+                await RadialGenerator.Build(this, page);
+            DisplayPageIcon(page);
 
-            ReCenter();
             _wasClicking = false;
+        }
+
+        /// <summary>
+        /// Affiche l'icône de la page au centre du radial (chargée en async).
+        /// </summary>
+        private void DisplayPageIcon(IRadialPage page) {
+            if (center == null)
+                return;
+            if (page == null) {
+                center.SetIcon(null);
+                return;
+            }
+            LoadPageIcon(page).Forget();
+        }
+
+        private async UniTask LoadPageIcon(IRadialPage page) {
+            Sprite sprite = null;
+            try {
+                sprite = await page.Icon;
+            } catch {
+                sprite = null;
+            }
+            // Si une autre page s'est affichée entre-temps, on ignore ce résultat.
+            if (center == null || !ReferenceEquals(_currentPage, page))
+                return;
+            center.SetIcon(sprite);
         }
 
         private void Update() {
@@ -177,12 +204,6 @@ namespace Nox.UI.Runtime {
             if (element == null)
                 return;
             element.RunClick(_cts.Token).Forget();
-        }
-
-        public void ReCenter() {
-            selection?.ReCenter();
-            center?.ReCenter();
-            elements?.ReCenter();
         }
 
         private void RequestDefaultPage() {

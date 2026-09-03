@@ -10,6 +10,9 @@ namespace Nox.UI.Runtime {
 	/// l'élément de navigation (Close/Back) est ajouté par <see cref="RadialGenerator"/>.
 	/// </summary>
 	public class RadialDefaultPage : IRadialPage {
+		/// <summary>Icône (ressource) de la page par défaut (hub).</summary>
+		public const string HubIcon = "ui:icons/hub.png";
+
 		public static RadialDefaultPage Create()
 			=> new();
 
@@ -21,6 +24,9 @@ namespace Nox.UI.Runtime {
 
 		public IRadialMenu Menu
 			=> null;
+
+		public UniTask<Sprite> Icon
+			=> RadialIcons.From(HubIcon);
 
 		public IRadialElement[] Content
 			=> new IRadialElement[] {

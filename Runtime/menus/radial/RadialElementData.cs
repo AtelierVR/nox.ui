@@ -19,6 +19,12 @@ namespace Nox.UI.Runtime {
 		/// <summary>Action exécutée au clic (null = élément non cliquable).</summary>
 		public Func<CancellationToken, UniTask> click;
 
+		/// <summary>État "actif" de l'élément (ex. toggle activé) → paramètre Animator "Active".</summary>
+		public bool active;
+
+		/// <summary>Délai avant exécution de l'action (ms) → progression Animator "Progress".</summary>
+		public int delay;
+
 		public RadialElementData() {
 			icon = UniTask.FromResult<Sprite>(null);
 		}
