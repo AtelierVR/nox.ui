@@ -1,9 +1,8 @@
-using Nox.UI.Runtime;
 using Cysharp.Threading.Tasks;
-using Nox.CCK.Language;
 using Nox.CCK.Mods.Cores;
 using Nox.CCK.Mods.Initializers;
-using Nox.UI;
+using Nox.CCK.UI;
+using Nox.CCK.Utils;
 using Nox.UI.modals;
 using UnityEngine;
 
@@ -19,13 +18,42 @@ namespace Nox.UI.Runtime {
 			Instance = this;
 			Manager  = new MenuManager(this);
 			_pages   = new PageManager(this);
+
+			InstantiateHelper.OnInstantiate.AddListener(EnsureScrollFix);
 		}
 
 		public void OnDisposeClient() {
+			InstantiateHelper.OnInstantiate.RemoveListener(EnsureScrollFix);
+
 			Manager.Dispose();
 			_pages.Dispose();
 			Manager = null;
 			Manager = null;
+		}
+
+		/// <summary>
+		/// Adds a <see cref="ScrollWheelFix"/> next to every instantiated Canvas that does not have
+		/// one yet (works around the wheel being blocked by interactive elements of a ScrollView).
+		/// </summary>
+		private static void EnsureScrollFix(GameObject instance) {
+			if (!instance)
+				return;
+
+			EnsureScrollFixes(instance.transform);
+		}
+
+		/// <summary>Recursively walks the hierarchy and equips every Canvas found.</summary>
+		private static void EnsureScrollFixes(Transform transform) {
+			if (transform.TryGetComponent<Canvas>(out var canvas))
+				AddScrollFix(canvas);
+
+			for (var i = 0; i < transform.childCount; i++)
+				EnsureScrollFixes(transform.GetChild(i));
+		}
+
+		private static void AddScrollFix(Canvas canvas) {
+			if (!canvas.TryGetComponent<ScrollWheelFix>(out _))
+				canvas.gameObject.AddComponent<ScrollWheelFix>();
 		}
 
 		public T Get<T>(int id) where T : IMenu
