@@ -220,7 +220,7 @@ namespace Nox.UI.Runtime {
 		}
 
 		public int Id
-			=> GetEntityId().GetHashCode();
+			=> this.GetId();
 
 		public bool Active {
 			get => Provider.Active;

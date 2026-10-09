@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Utils;
-using Nox.UI;
 using UnityEngine;
 
 namespace Nox.UI.Runtime {
@@ -42,14 +41,14 @@ namespace Nox.UI.Runtime {
 			var keys    = new HashSet<int>();
 
 			foreach (var entry in present)
-				keys.Add(entry.GetEntityId().GetHashCode());
+				keys.Add(entry.GetId());
 			var prefab = await GetBack();
 
 			// add backs for each present element
 			foreach (var entry in present) {
-				if (backContainer.Find(entry.GetEntityId().GetHashCode().ToString("x8"))) continue;
+				if (backContainer.Find(entry.GetId().ToString("x8"))) continue;
 				var back = prefab.Instantiate(backContainer);
-				back.name = entry.GetEntityId().GetHashCode().ToString("x8");
+				back.name = entry.GetId().ToString("x8");
 			}
 
 			// remove backs for each absent element

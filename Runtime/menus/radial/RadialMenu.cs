@@ -40,7 +40,7 @@ namespace Nox.UI.Runtime {
             => _history.Count > 0;
 
         public int Id
-            => GetEntityId().GetHashCode();
+            => this.GetId();
 
         public ISelectionRadialProvider Selection {
             get => selection;

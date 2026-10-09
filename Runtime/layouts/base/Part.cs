@@ -1,8 +1,6 @@
 using System.Linq;
-using Nox.UI.Runtime;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Utils;
-using Nox.UI;
 using UnityEngine;
 
 namespace Nox.UI.Runtime {
@@ -52,7 +50,7 @@ namespace Nox.UI.Runtime {
 					return;
 				}
 
-				instance.name = elementComponent.GetEntityId().GetHashCode().ToString("x8");
+				instance.name = elementComponent.GetId().ToString("x8");
 			}
 
 			await elementComponent.SetData(menu, data);

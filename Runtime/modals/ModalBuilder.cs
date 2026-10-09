@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Nox.CCK.Language;
 using Nox.CCK.Utils;
-using Nox.UI;
 using Nox.UI.modals;
 using UnityEngine;
 using UnityEngine.UI;
-using Object = UnityEngine.Object;
 
 namespace Nox.UI.Runtime {
 	public class ModalBuilder : IModalBuilder {
@@ -32,7 +30,7 @@ namespace Nox.UI.Runtime {
 			instance.transform.localPosition = lp;
 
 			modal.Attach(Menu);
-			instance.name = $"[Modal] {modal.GetEntityId().GetHashCode()}";
+			instance.name = $"[Modal] {modal.GetId()}";
 			var container = Reference.GetComponent<RectTransform>("content", instance);
 
 			if (Generator != null)
