@@ -26,7 +26,10 @@ namespace Nox.UI.Runtime {
 
 		public override async UniTask AddElements(NavigationData[] elements) {
 			var prefab = await GetPrefab();
-			await UniTask.WhenAll(elements.Select(element => AddElementBack(element, prefab, false)));
+
+			foreach (var element in elements)
+				await AddElementBack(element, prefab, false);
+
 			await UpdateBacks();
 		}
 

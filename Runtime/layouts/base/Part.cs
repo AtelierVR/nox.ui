@@ -40,7 +40,8 @@ namespace Nox.UI.Runtime {
 			var elementComponent = GetChildren().FirstOrDefault(e => e.GetData().Key == data.Key);
 
 			if (!elementComponent) {
-				prefab = await GetPrefab();
+				prefab ??= await GetPrefab();
+
 				var instance = prefab.Instantiate(container);
 				elementComponent = instance.GetComponent<Element>();
 
@@ -59,7 +60,10 @@ namespace Nox.UI.Runtime {
 
 		public virtual async UniTask AddElements(NavigationData[] elements) {
 			var prefab = await GetPrefab();
-			await UniTask.WhenAll(elements.Select(e => AddElement(e, prefab)));
+
+			foreach (var element in elements)
+				await AddElement(element, prefab);
+
 			UpdateLayout.UpdateImmediate(container);
 		}
 	}
