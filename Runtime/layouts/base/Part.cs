@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Utils;
 using UnityEngine;
@@ -6,7 +7,8 @@ using UnityEngine;
 namespace Nox.UI.Runtime {
 	public abstract class Part : MonoBehaviour, IPart {
 		public abstract string GetKey();
-		abstract protected UniTask<GameObject> GetPrefab();
+
+		abstract protected UniTask<GameObject> GetPrefab(CancellationToken cancellationToken = default);
 		public RectTransform container;
 		public Menu menu;
 
@@ -33,16 +35,19 @@ namespace Nox.UI.Runtime {
 			}
 		}
 
-		public UniTask AddElement(NavigationData element)
-			=> AddElement(element, null);
+		public UniTask AddElement(NavigationData element, CancellationToken cancellationToken = default)
+			=> AddElement(element, null, cancellationToken);
 
-		public virtual async UniTask AddElement(NavigationData data, GameObject prefab = null) {
+		public virtual async UniTask AddElement(NavigationData data, GameObject prefab = null, CancellationToken cancellationToken = default) {
 			var elementComponent = GetChildren().FirstOrDefault(e => e.GetData().Key == data.Key);
 
 			if (!elementComponent) {
-				prefab ??= await GetPrefab();
+				prefab ??= await GetPrefab(cancellationToken);
 
-				var instance = prefab.Instantiate(container);
+				var instance = await prefab.InstantiateAsync(container, cancellationToken: cancellationToken);
+				if (!instance)
+					return;
+
 				elementComponent = instance.GetComponent<Element>();
 
 				if (!elementComponent) {
@@ -54,15 +59,19 @@ namespace Nox.UI.Runtime {
 				instance.name = elementComponent.GetId().ToString("x8");
 			}
 
-			await elementComponent.SetData(menu, data);
+			await elementComponent.SetData(menu, data, cancellationToken);
 			UpdateLayout.UpdateImmediate(container);
 		}
 
-		public virtual async UniTask AddElements(NavigationData[] elements) {
-			var prefab = await GetPrefab();
+		public virtual async UniTask AddElements(NavigationData[] elements, CancellationToken cancellationToken = default) {
+			var prefab = await GetPrefab(cancellationToken);
+			if (!prefab)
+				return;
 
-			foreach (var element in elements)
-				await AddElement(element, prefab);
+			foreach (var element in elements) {
+				cancellationToken.ThrowIfCancellationRequested();
+				await AddElement(element, prefab, cancellationToken);
+			}
 
 			UpdateLayout.UpdateImmediate(container);
 		}

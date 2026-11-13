@@ -1,14 +1,15 @@
 using System.Collections.Generic;
-using Nox.UI.Runtime;
+using System.Threading;
 using Cysharp.Threading.Tasks;
-using Nox.UI;
-using Logger = Nox.CCK.Utils.Logger;
 
 namespace Nox.UI.Runtime {
 	public class HistoryList {
-		private readonly Menu        _menu;
-		private readonly List<IPage> _cache   = new();
-		private          int         _current = -1;
+		private readonly Menu _menu;
+		private readonly List<IPage> _cache = new();
+		private int _current = -1;
+
+		private CancellationToken Lifetime
+			=> _menu.GetCancellationTokenOnDestroy();
 
 		public HistoryList(Menu menu)
 			=> _menu = menu;
@@ -19,7 +20,12 @@ namespace Nox.UI.Runtime {
 				RemoveRange(_current + 1, _cache.Count - _current - 1);
 			_cache.Add(page);
 			_current = _cache.Count - 1;
-			_menu.SetPage(page, crt, PageFlags.IsNew | PageFlags.IsForward).Forget();
+			_menu.SetPage(
+				page,
+				crt,
+				PageFlags.IsNew | PageFlags.IsForward,
+				Lifetime
+			).Forget();
 		}
 
 		public void Move(int move) {
@@ -32,14 +38,23 @@ namespace Nox.UI.Runtime {
 			var crt = GetCurrent();
 			while (count-- > 0 && _current > 0)
 				_current--;
-			_menu.SetPage(_cache[_current], crt, PageFlags.IsRestore | PageFlags.IsBack).Forget();;
+			_menu.SetPage(
+				_cache[_current],
+				crt, PageFlags.IsRestore | PageFlags.IsBack,
+				Lifetime
+			).Forget();
 		}
 
 		public void GoForward(int count = 1) {
 			var crt = GetCurrent();
 			while (count-- > 0 && _current < _cache.Count - 1)
 				_current++;
-			_menu.SetPage(_cache[_current], crt, PageFlags.IsRestore | PageFlags.IsForward).Forget();;
+			_menu.SetPage(
+				_cache[_current],
+				crt,
+				PageFlags.IsRestore | PageFlags.IsForward,
+				Lifetime
+			).Forget();
 		}
 
 		public IPage GetCurrent() {
@@ -59,7 +74,12 @@ namespace Nox.UI.Runtime {
 
 			var cur = GetCurrent();
 			if (old != cur && cur != null)
-				_menu.SetPage(cur, old, PageFlags.IsRestore | PageFlags.IsBack).Forget();;
+				_menu.SetPage(
+					cur,
+					old,
+					PageFlags.IsRestore | PageFlags.IsBack,
+					Lifetime
+				).Forget();
 		}
 
 		public void Clear() {
@@ -70,7 +90,12 @@ namespace Nox.UI.Runtime {
 
 		internal void Restore() {
 			var crt = GetCurrent();
-			_menu.SetPage(crt, crt, PageFlags.IsRestore).Forget();;
+			_menu.SetPage(
+				crt,
+				crt,
+				PageFlags.IsRestore,
+				Lifetime
+			).Forget();
 		}
 	}
 }

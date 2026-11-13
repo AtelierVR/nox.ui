@@ -49,6 +49,27 @@ namespace Nox.UI.modals {
 		public void SetOptions(Action<string> onValue, Dictionary<string, string[]> options);
 
 		/// <summary>
+		/// Sets options for the modal, each row built from <paramref name="rowPrefab"/>.
+		/// <para>
+		/// A row prefab holding a <c>toggle</c> reference becomes a switch: it shows
+		/// <paramref name="isOn"/> and reports every change without closing the modal, so the list stays
+		/// usable as a group of switches. Any other prefab becomes a button that closes the modal, like
+		/// <see cref="SetOptions(Action{string}, Dictionary{string, string[]})"/>.
+		/// </para>
+		/// </summary>
+		/// <param name="onValue">Called with the key of the row that changed.</param>
+		/// <param name="options">Label key of each row, then the arguments it takes.</param>
+		/// <param name="rowPrefab">Prefab of a row, or <c>null</c> for the default one.</param>
+		/// <param name="isOn">State of a row, for the prefabs that can show one.</param>
+		public void SetOptions(
+			Action<string> onValue,
+			Dictionary<string, string[]> options,
+			GameObject rowPrefab,
+			Func<string, bool> isOn
+		)
+			=> SetOptions(onValue, options);
+
+		/// <summary>
 		/// Builds the modal and returns the root GameObject.
 		/// </summary>
 		/// <returns></returns>

@@ -3,6 +3,12 @@ using UnityEngine.Events;
 
 namespace Nox.UI.modals {
 	public interface IModal {
+		/// <summary>
+		/// Whether the user may dismiss it: the close button and a click outside the modal do nothing when it is not
+		/// closable.
+		/// </summary>
+		public bool Closable { get; }
+
 		public void Close();
 
 		public void Show();

@@ -1,22 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Utils;
-using Nox.UI;
 using UnityEngine;
-using Transform = UnityEngine.Transform;
 
 namespace Nox.UI.Runtime {
 	public class ActionPage : IPage, INoxObject {
-		private string                          _key;
-		private object[]                        _context;
-		private GameObject                      _content;
+		private string _key;
+		private object[] _context;
+		private GameObject _content;
 		private Func<RectTransform, GameObject> _actionGetContent;
-		private Action<IPage>                   _actionOnOpen;
-		private Action<IPage>                   _actionOnRestore;
-		private Action                          _actionOnRemove;
-		private Action<IPage>                   _actionOnDisplay;
-		private Action<IPage>                   _actionOnHide;
+		private Action<IPage> _actionOnOpen;
+		private Action<IPage> _actionOnRestore;
+		private Action _actionOnRemove;
+		private Action<IPage> _actionOnDisplay;
+		private Action<IPage> _actionOnHide;
 
 		internal static ActionPage From(Dictionary<string, object> data) {
 			if (data == null || data.Count == 0)
@@ -74,7 +73,7 @@ namespace Nox.UI.Runtime {
 		public GameObject GetContent(RectTransform parent)
 			=> _content ??= _actionGetContent?.Invoke(parent) ?? throw new InvalidOperationException("ActionPage content is not set or actionGetContent is null.");
 
-		public UniTask<GameObject> GetContentAsync(RectTransform parent)
+		public UniTask<GameObject> GetContentAsync(RectTransform parent, CancellationToken cancellationToken = default)
 			=> UniTask.FromResult(GetContent(parent));
 
 		public IMenu GetMenu() {

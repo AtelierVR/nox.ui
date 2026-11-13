@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Utils;
 using UnityEngine;
@@ -81,7 +82,7 @@ namespace Nox.UI.Runtime {
 			_radialMenus.Clear();
 		}
 
-		public async UniTask<Menu> Make(IMenuProvider container) {
+		public async UniTask<Menu> Make(IMenuProvider container, CancellationToken cancellationToken = default) {
 			if (container == null) {
 				Logger.LogError("Container is null");
 				return null;
@@ -89,7 +90,11 @@ namespace Nox.UI.Runtime {
 
 			var menu = await PageManager
 				.GetAssetAsync<GameObject>("prefabs/menu.prefab")
-				.InstantiateAsync<Menu>(container.Container);
+				.InstantiateAsync<Menu>(container.Container, cancellationToken: cancellationToken);
+
+			// The instantiation was cancelled (or failed): nothing was added to the manager.
+			if (menu == null)
+				return null;
 
 			menu.Client          = _client;
 			menu.gameObject.name = $"[{menu.GetType().Name}_{menu.GetId()}]";
@@ -99,19 +104,19 @@ namespace Nox.UI.Runtime {
 			return menu;
 		}
 
-		public async UniTask<RadialMenu> MakeRadial(IRadialMenuProvider container) {
+		public async UniTask<RadialMenu> MakeRadial(IRadialMenuProvider container, CancellationToken cancellationToken = default) {
 			if (container == null) {
 				Logger.LogError("Container is null");
 				return null;
 			}
 
-			var prefab = await PageManager.GetAssetAsync<GameObject>("prefabs/radial_menu.prefab");
+			var prefab = await PageManager.GetAssetAsync<GameObject>("prefabs/radial_menu.prefab", cancellationToken);
 			if (prefab == null) {
 				Logger.LogError("Failed to load radial menu prefab");
 				return null;
 			}
 
-			var menu = await prefab.InstantiateAsync<RadialMenu>(container.Container);
+			var menu = await prefab.InstantiateAsync<RadialMenu>(container.Container, cancellationToken: cancellationToken);
 			if (menu == null) {
 				Logger.LogError("Failed to instantiate radial menu");
 				return null;

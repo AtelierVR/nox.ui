@@ -21,11 +21,17 @@ namespace Nox.UI.Runtime {
 			OnMuteChanged(false, Main.UiRegister?.Channel?.IsEffectivelyMuted ?? false);
 		}
 
-        private void OnVolumeChanged(float _, float effective)
-			=> Source.volume = effective;
+        private void OnVolumeChanged(float _, float effective) {
+			if (!Source)
+				return;
+			Source.volume = effective;
+		}
 
-        private void OnMuteChanged(bool _, bool effective)
-			=> Source.mute = effective;
+        private void OnMuteChanged(bool _, bool effective) {
+			if (!Source)
+				return;
+			Source.mute = effective;
+		}
 
         internal void MarkStarted() {
 			_started = true;
@@ -42,27 +48,32 @@ namespace Nox.UI.Runtime {
 		internal AudioSource Source { get; }
 
 		public bool IsEnded
-			=> IsDisposed || _failed || (_started && !Source.isPlaying);
+			=> IsDisposed || _failed || !Source || (_started && !Source.isPlaying);
 
 		public bool IsLoop
-			=> !IsDisposed && _started && Source.loop;
+			=> !IsDisposed && _started && Source && Source.loop;
 
 		public void Dispose() {
 			if (IsDisposed)
 				return;
 			IsDisposed = true;
-			if (_started)
+			if (_started && Source)
 				Source.Stop();
-			Main.UiRegister?.OnVolume.RemoveListener(OnVolumeChanged);
-			Main.UiRegister?.OnMute.RemoveListener(OnMuteChanged);
+			Detach();
 			_tempOwned?.Destroy();
 		}
 
 		public async UniTask WhenDone(CancellationToken token = default)
 			=> await UniTask.WaitUntil(() => IsEnded, cancellationToken: token);
 
+		private void Detach() {
+			Main.UiRegister?.OnVolume.RemoveListener(OnVolumeChanged);
+			Main.UiRegister?.OnMute.RemoveListener(OnMuteChanged);
+		}
+
 		private async UniTaskVoid AutoDestroyAsync() {
 			await WhenDone(Source.GetCancellationTokenOnDestroy());
+			Detach();
 			_tempOwned?.Destroy();
 		}
 	}

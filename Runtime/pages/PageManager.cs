@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Mods.Cores;
 using Nox.CCK.Mods.Events;
@@ -8,15 +9,15 @@ using Nox.CCK.Utils;
 
 namespace Nox.UI.Runtime {
 	public class PageManager : INoxObject, IDisposable {
-		public const string GotoEvent    = "menu_goto";
-		public const string ActionEvent  = "menu_action";
+		public const string GotoEvent = "menu_goto";
+		public const string ActionEvent = "menu_action";
 		public const string DisplayEvent = "menu_display";
 
-		public const string RadialGotoEvent    = "radial_goto";
+		public const string RadialGotoEvent = "radial_goto";
 		public const string RadialDisplayEvent = "radial_display";
 
 		private readonly EventSubscription[] _events;
-		private readonly Client              _client;
+		private readonly Client _client;
 
 		public PageManager(Client client) {
 			_client = client;
@@ -27,15 +28,15 @@ namespace Nox.UI.Runtime {
 			};
 		}
 
-		public static async UniTask<T> GetAssetAsync<T>(ResourceIdentifier path) where T : UnityEngine.Object
-			=> await GetCoreAPI().AssetAPI.GetAssetAsync<T>(path);
+		public static async UniTask<T> GetAssetAsync<T>(ResourceIdentifier path, CancellationToken cancellationToken = default) where T : UnityEngine.Object
+			=> await GetCoreAPI().AssetAPI.GetAssetAsync<T>(path, cancellationToken);
 
 		public static IModCoreAPI GetCoreAPI()
-			#if UNITY_EDITOR
+#if UNITY_EDITOR
 			=> Editor.CoreAPI;
-		#else
+#else
 			=> Client.Instance.CoreAPI;
-		#endif
+#endif
 
 		public static void SendAction(int menuId, string action, int move = 0)
 			=> GetCoreAPI().EventAPI.Emit(ActionEvent, menuId, action, move);

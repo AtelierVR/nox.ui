@@ -1,6 +1,5 @@
-using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
-using Nox.UI;
 using UnityEngine;
 
 namespace Nox.UI.Runtime {
@@ -8,7 +7,7 @@ namespace Nox.UI.Runtime {
 		public override string GetKey()
 			=> "applications";
 
-		override async protected UniTask<GameObject> GetPrefab()
-			=> await PageManager.GetAssetAsync<GameObject>("buttons/application.prefab");
+		override protected UniTask<GameObject> GetPrefab(CancellationToken cancellationToken = default)
+			=> PageManager.GetAssetAsync<GameObject>("buttons/application.prefab", cancellationToken);
 	}
 }

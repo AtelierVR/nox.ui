@@ -22,7 +22,7 @@ namespace Nox.UI.Runtime {
 
 		private void OnHierarchyChanged() {
 			if (EditorApplication.isPlaying) return;
-			var canvas = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+			var canvas = Object.FindObjectsByType<Canvas>();
 			foreach (var c in canvas.Where(e => e.gameObject.activeInHierarchy))
 				UpdateLayout.UpdateImmediate(c.gameObject);
 		}

@@ -1,5 +1,5 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
-using Nox.UI;
 using UnityEngine;
 
 namespace Nox.UI.Runtime {
@@ -7,15 +7,15 @@ namespace Nox.UI.Runtime {
 		public static string GetStaticKey()
 			=> "example";
 
-		private readonly int        _mId;
-		private readonly object[]   _context;
-		private          GameObject _content;
+		private readonly int _mId;
+		private readonly object[] _context;
+		private GameObject _content;
 
 		public static IPage OnGotoAction(IMenu menu, object[] o)
 			=> new ExamplePage(menu.Id, o);
 
 		private ExamplePage(int mId, object[] context) {
-			_mId     = mId;
+			_mId = mId;
 			_context = context;
 		}
 
@@ -30,7 +30,7 @@ namespace Nox.UI.Runtime {
 			return null;
 		}
 
-		public UniTask<GameObject> GetContentAsync(RectTransform parent)
+		public UniTask<GameObject> GetContentAsync(RectTransform parent, CancellationToken cancellationToken = default)
 			=> UniTask.FromResult(GetContent(parent));
 
 		public IMenu GetMenu()

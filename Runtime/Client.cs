@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Mods.Cores;
 using Nox.CCK.Mods.Initializers;
@@ -32,8 +33,9 @@ namespace Nox.UI.Runtime {
 		}
 
 		/// <summary>
-		/// Adds a <see cref="ScrollWheelFix"/> next to every instantiated Canvas that does not have
-		/// one yet (works around the wheel being blocked by interactive elements of a ScrollView).
+		/// Adds the <see cref="ScrollWheelFix"/> and <see cref="ScrollDragFix"/> of every instantiated
+		/// Canvas that does not have them yet (the wheel and the drag are both swallowed by the
+		/// interactive elements of a ScrollView).
 		/// </summary>
 		private static void EnsureScrollFix(GameObject instance) {
 			if (!instance)
@@ -45,15 +47,18 @@ namespace Nox.UI.Runtime {
 		/// <summary>Recursively walks the hierarchy and equips every Canvas found.</summary>
 		private static void EnsureScrollFixes(Transform transform) {
 			if (transform.TryGetComponent<Canvas>(out var canvas))
-				AddScrollFix(canvas);
+				AddScrollFixes(canvas);
 
 			for (var i = 0; i < transform.childCount; i++)
 				EnsureScrollFixes(transform.GetChild(i));
 		}
 
-		private static void AddScrollFix(Canvas canvas) {
+		private static void AddScrollFixes(Canvas canvas) {
 			if (!canvas.TryGetComponent<ScrollWheelFix>(out _))
 				canvas.gameObject.AddComponent<ScrollWheelFix>();
+
+			if (!canvas.TryGetComponent<ScrollDragFix>(out _))
+				canvas.gameObject.AddComponent<ScrollDragFix>();
 		}
 
 		public T Get<T>(int id) where T : IMenu
@@ -68,11 +73,11 @@ namespace Nox.UI.Runtime {
 		public void Remove(int id)
 			=> Manager.Remove(id);
 
-		public async UniTask<IMenu> Make(IMenuProvider container)
-			=> await Manager.Make(container);
+		public async UniTask<IMenu> Make(IMenuProvider container, CancellationToken cancellationToken = default)
+			=> await Manager.Make(container, cancellationToken);
 
-		public async UniTask<IRadialMenu> MakeRadial(IRadialMenuProvider container)
-			=> await Manager.MakeRadial(container);
+		public async UniTask<IRadialMenu> MakeRadial(IRadialMenuProvider container, CancellationToken cancellationToken = default)
+			=> await Manager.MakeRadial(container, cancellationToken);
 
 		public void SendGoto(int menuId, string key, params object[] args)
 			=> PageManager.SendGoto(menuId, key, args);

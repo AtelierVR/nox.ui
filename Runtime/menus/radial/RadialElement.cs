@@ -6,10 +6,9 @@ using UnityEngine.UI;
 
 namespace Nox.UI.Runtime {
 	/// <summary>
-	/// Élément visuel d'un menu radial : gère l'état survolé, joue un rebond vers
-	/// l'extérieur et pilote le paramètre Animator "Hover". Affiche les données
-	/// runtime produites par <see cref="RadialGenerator"/> (libellé + icône) et
-	/// exécute l'action au clic.
+	/// Visual element of a radial menu: handles the hover state, plays an outward bounce and
+	/// drives the Animator "Hover" parameter. Displays the runtime data produced by
+	/// <see cref="RadialGenerator"/> (label + icon) and runs the action on click.
 	/// </summary>
 	[DisallowMultipleComponent]
 	public class RadialElement : MonoBehaviour
@@ -32,7 +31,7 @@ namespace Nox.UI.Runtime {
         private Image _icon;
         private TMPro.TextMeshProUGUI _text;
 
-        /// <summary>Données runtime affichées par cet élément (peut être null).</summary>
+        /// <summary>Runtime data displayed by this element (can be null).</summary>
         public RadialElementData Data { get; private set; }
 
         public bool Hovered {
@@ -41,8 +40,8 @@ namespace Nox.UI.Runtime {
         }
 
         /// <summary>
-        /// État "actif" de l'élément (ex. action activée). Pilote le paramètre
-        /// Animator "Active", comme "Hover" pour le survol.
+        /// "Active" state of the element (e.g. action enabled). Drives the Animator
+        /// "Active" parameter, like "Hover" for hovering.
         /// </summary>
         public bool Active {
             get => _active;
@@ -54,9 +53,9 @@ namespace Nox.UI.Runtime {
         }
 
         /// <summary>
-        /// Avancement du délai avant exécution (0..1). Pilote le paramètre Animator
-        /// "Progress" : monté à 100% pendant le <c>DelayBeforeExecution</c> de
-        /// l'action, puis remis à 0 une fois l'action exécutée.
+        /// Progress of the delay before execution (0..1). Drives the Animator "Progress"
+        /// parameter: filled to 100% during the <c>DelayBeforeExecution</c> of the action, then
+        /// set back to 0 once the action is executed.
         /// </summary>
         public float DelayProgress {
             get => _delayProgress;
@@ -78,7 +77,7 @@ namespace Nox.UI.Runtime {
         }
 
         /// <summary>
-        /// Assigne les données de l'élément et rafraîchit l'icône et le libellé.
+        /// Assigns the element data and refreshes the icon and the label.
         /// </summary>
         public void SetData(RadialElementData data) {
             Data = data;
@@ -91,15 +90,13 @@ namespace Nox.UI.Runtime {
             UpdateIcon(data).Forget();
         }
 
-        /// <summary>Exécute l'action de l'élément (no-op si l'élément n'est pas cliquable).</summary>
+        /// <summary>Runs the element action (no-op when the element is not clickable).</summary>
         public async UniTask RunClick(CancellationToken token = default) {
             var data = Data;
             if (data?.click == null)
                 return;
 
             if (data.delay > 0) {
-                // La progression remplit 0→1 pendant le délai, en parallèle du clic
-                // (qui attend lui-même le DelayBeforeExecution avant d'exécuter).
                 var clickTask = data.click(token);
                 var progress  = AnimateDelay(data.delay, token);
                 await UniTask.WhenAll(clickTask, progress);
@@ -114,8 +111,8 @@ namespace Nox.UI.Runtime {
         }
 
         /// <summary>
-        /// Fait monter <see cref="DelayProgress"/> de 0 à 1 sur la durée du délai
-        /// (par frame, via le paramètre Animator "Progress").
+        /// Brings <see cref="DelayProgress"/> from 0 to 1 over the delay
+        /// (per frame, through the Animator "Progress" parameter).
         /// </summary>
         private async UniTask AnimateDelay(int delayMs, CancellationToken token) {
             if (delayMs <= 0)
@@ -143,7 +140,6 @@ namespace Nox.UI.Runtime {
             }
 
             var sprite = await data.icon;
-            // L'élément a pu être détruit ou réassigné pendant le chargement.
             if (_icon == null || Data != data)
                 return;
 

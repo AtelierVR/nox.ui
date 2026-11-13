@@ -27,6 +27,8 @@ MonoBehaviour:
       value: Back
     - key: radial.close
       value: Close
+    - key: ui.fps
+      value: '{0} FPS'
   - IETF: fr-FR
     entries:
     - key: settings.entry.audio.channel.ui
@@ -35,3 +37,5 @@ MonoBehaviour:
       value: Retour
     - key: radial.close
       value: Fermer
+    - key: ui.fps
+      value: '{0} FPS'

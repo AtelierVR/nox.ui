@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Nox.UI.modals;
 using UnityEngine;
@@ -38,15 +39,16 @@ namespace Nox.UI {
 		/// Create a main default menu.
 		/// </summary>
 		/// <param name="container"></param>
+		/// <param name="cancellationToken">Cancels the creation (the avatar swapped, the rig was disposed...).</param>
 		/// <returns></returns>
-		public UniTask<IMenu> Make(IMenuProvider container);
+		public UniTask<IMenu> Make(IMenuProvider container, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Create a radial menu.
 		/// </summary>
 		/// <param name="container"></param>
 		/// <returns></returns>
-		public UniTask<IRadialMenu> MakeRadial(IRadialMenuProvider container);
+		public UniTask<IRadialMenu> MakeRadial(IRadialMenuProvider container, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Sends a goto event to the menu with the specified ID and key.

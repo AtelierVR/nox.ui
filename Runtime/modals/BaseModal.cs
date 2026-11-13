@@ -9,6 +9,9 @@ namespace Nox.UI.Runtime {
 		public GameObject content;
 		public IModalMenu Menu;
 
+		/// <inheritdoc/>
+		public bool Closable { get; set; } = true;
+
 		public void Close() {
 			InternalClose();
 			OnClose.Invoke();

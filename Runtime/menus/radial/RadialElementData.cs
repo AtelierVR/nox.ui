@@ -5,28 +5,26 @@ using UnityEngine;
 
 namespace Nox.UI.Runtime {
 	/// <summary>
-	/// Données d'affichage d'un élément du menu radial, produites par
-	/// <see cref="RadialGenerator"/> depuis une page. Ne dépend pas du SDK
-	/// (type runtime uniquement).
+	/// Display data of a radial menu element, produced by <see cref="RadialGenerator"/> from a
+	/// page. Does not depend on the SDK (runtime-only type).
 	/// </summary>
 	public class RadialElementData {
-		/// <summary>Libellé localisé affiché (ou null pour masquer le texte).</summary>
+		/// <summary>Localized label to display (or null to hide the text).</summary>
 		public string label;
 
-		/// <summary>Source de l'icône (chargée à l'affichage, peut résoudre null).</summary>
+		/// <summary>Icon source (loaded on display, may resolve to null).</summary>
 		public UniTask<Sprite> icon;
 
-		/// <summary>Action exécutée au clic (null = élément non cliquable).</summary>
+		/// <summary>Action run on click (null = element not clickable).</summary>
 		public Func<CancellationToken, UniTask> click;
 
-		/// <summary>État "actif" de l'élément (ex. toggle activé) → paramètre Animator "Active".</summary>
+		/// <summary>"Active" state of the element (e.g. toggle on) → Animator "Active" parameter.</summary>
 		public bool active;
 
-		/// <summary>Délai avant exécution de l'action (ms) → progression Animator "Progress".</summary>
+		/// <summary>Delay before the action runs (ms) → Animator "Progress" parameter.</summary>
 		public int delay;
 
-		public RadialElementData() {
-			icon = UniTask.FromResult<Sprite>(null);
-		}
+		public RadialElementData()
+			=> icon = UniTask.FromResult<Sprite>(null);
 	}
 }

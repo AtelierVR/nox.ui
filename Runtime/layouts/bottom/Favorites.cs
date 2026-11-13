@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace Nox.UI.Runtime {
 		public override string GetKey()
 			=> "favorites";
 
-		override protected UniTask<GameObject> GetPrefab()
-			=> PageManager.GetAssetAsync<GameObject>("buttons/favorite.prefab");
+		override protected UniTask<GameObject> GetPrefab(CancellationToken cancellationToken = default)
+			=> PageManager.GetAssetAsync<GameObject>("buttons/favorite.prefab", cancellationToken);
 	}
 }

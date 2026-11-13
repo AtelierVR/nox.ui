@@ -1,8 +1,7 @@
-using Nox.UI.Runtime;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Language;
 using Nox.CCK.Utils;
-using Nox.UI;
 using UnityEngine;
 using Logger = Nox.CCK.Utils.Logger;
 using UnityEngine.UI;
@@ -17,10 +16,10 @@ namespace Nox.UI.Runtime {
 		public Menu menu;
 
 		public TextLanguage text;
-		public GameObject   textContainer;
-		public Image        icon;
-		public GameObject   iconContainer;
-		public Button       button;
+		public GameObject textContainer;
+		public Image icon;
+		public GameObject iconContainer;
+		public Button button;
 
 		public GameObject contentContainer;
 		public GameObject customContainer;
@@ -38,9 +37,9 @@ namespace Nox.UI.Runtime {
 		}
 
 		private void Start()
-			=> SetData(menu, data).Forget();
+			=> SetData(menu, data, this.GetCancellationTokenOnDestroy()).Forget();
 
-		public async UniTask SetData(Menu m, NavigationData d) {
+		public async UniTask SetData(Menu m, NavigationData d, CancellationToken cancellationToken = default) {
 			data = d;
 			menu = m;
 
@@ -61,19 +60,23 @@ namespace Nox.UI.Runtime {
 					child.gameObject.Destroy();
 
 			var custom = customContainer && d.GetCustomContent != null
-				? await d.GetCustomContent.Invoke(customContainer.transform)
+				? await d.GetCustomContent.Invoke(customContainer.transform, cancellationToken)
 				: null;
+
+			if (!this)
+				return;
 
 			if (custom && customContainer) {
 				custom.transform.SetParent(customContainer.transform, false);
-				custom.transform.localScale    = Vector3.one;
+				custom.transform.localScale = Vector3.one;
 				custom.transform.localPosition = Vector3.one;
 				customContainer?.SetActive(true);
 				contentContainer?.SetActive(false);
 			} else {
 				text?.UpdateText(d.text, d.textArguments);
 				textContainer?.SetActive(!string.IsNullOrEmpty(d.text));
-				if (icon) UpdateTexture(icon, d).Forget();
+				if (icon)
+					UpdateTexture(icon, d, this.GetCancellationTokenOnDestroy()).Forget();
 				iconContainer?.SetActive(icon?.sprite);
 				if (customContainer) customContainer.SetActive(false);
 				contentContainer?.SetActive(true);
@@ -87,7 +90,7 @@ namespace Nox.UI.Runtime {
 			}
 		}
 
-		private async UniTaskVoid UpdateTexture(Image image, NavigationData d) {
+		private async UniTaskVoid UpdateTexture(Image image, NavigationData d, CancellationToken cancellationToken) {
 			var texture = d.icon;
 			if (texture) {
 				image.sprite = Sprite.Create(
@@ -100,7 +103,10 @@ namespace Nox.UI.Runtime {
 			}
 
 			if (!texture && d.Icon.IsValid()) {
-				image.sprite = await PageManager.GetAssetAsync<Sprite>(d.Icon);
+				var sprite = await PageManager.GetAssetAsync<Sprite>(d.Icon, cancellationToken);
+				if (!image)
+					return;
+				image.sprite = sprite;
 				image.gameObject.SetActive(image.sprite);
 				if (image.sprite) return;
 			}

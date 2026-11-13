@@ -1,6 +1,5 @@
-using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 namespace Nox.UI {
 	/// <summary>
@@ -41,13 +40,15 @@ namespace Nox.UI {
 		/// If is already exists, update it.
 		/// </summary>
 		/// <param name="element"></param>
-		public UniTask AddElement(NavigationData element);
+		/// <param name="cancellationToken"></param>
+		public UniTask AddElement(NavigationData element, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Add multiple elements to the part.
 		/// If already exists, update it.
 		/// </summary>
 		/// <param name="elements"></param>
-		UniTask AddElements(NavigationData[] elements);
+		/// <param name="cancellationToken"></param>
+		UniTask AddElements(NavigationData[] elements, CancellationToken cancellationToken = default);
 	}
 }

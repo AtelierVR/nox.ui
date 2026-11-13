@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -29,8 +30,9 @@ namespace Nox.UI {
 		/// Asynchronously make or return <see cref="GameObject"/> for the content of the page.
 		/// </summary>
 		/// <param name="parent"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public UniTask<GameObject> GetContentAsync(RectTransform parent)
+		public UniTask<GameObject> GetContentAsync(RectTransform parent, CancellationToken cancellationToken = default)
 			=> UniTask.FromResult(GetContent(parent));
 
 		/// <summary>

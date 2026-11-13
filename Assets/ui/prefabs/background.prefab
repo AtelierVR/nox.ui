@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 4219794187305631857}
   - component: {fileID: 6687061030364805025}
   - component: {fileID: 2146871792462032005}
+  - component: {fileID: 5512308471963028411}
+  - component: {fileID: 7736105928403771002}
   m_Layer: 5
   m_Name: ground
   m_TagString: Untagged
@@ -75,6 +77,35 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5512308471963028411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3109738063954182522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0af92028944ea6a459e1ef151e8ca6c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  graphic: {fileID: 2146871792462032005}
+--- !u!114 &7736105928403771002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3109738063954182522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c893886f5a369654689b39e964e4dc9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  graphic: {fileID: 2146871792462032005}
+  offsetProperty: _Parallax
+  strengthProperty: _ParallaxStrength
+  smoothing: 6
 --- !u!1 &4070141048079966833
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,6 +14,8 @@ Shader "Custom/FluidBackground"
         [Toggle] _UseTexture ("Use Texture", Float) = 0
         [Toggle] _UsePixelNoise ("Use Pixel Noise", Float) = 0
         _PixelNoiseStrength ("Pixel Noise Strength", Range(0.0, 1.0)) = 0.05
+        _Parallax ("Parallax Offset", Vector) = (0, 0, 0, 0)
+        _ParallaxStrength ("Parallax Strength", Vector) = (0, 0, 0, 0)
         
         [HideInInspector] _StencilComp ("Stencil Comparison", Float) = 8
         [HideInInspector] _Stencil ("Stencil ID", Float) = 0
@@ -93,6 +95,7 @@ Shader "Custom/FluidBackground"
             float _UseTexture;
             float _UsePixelNoise;
             float _PixelNoiseStrength;
+            float4 _Parallax;
             int _Steps;
             
             sampler2D _MainTex;
@@ -175,6 +178,8 @@ Shader "Custom/FluidBackground"
                 float2 uv = (_UseGlobalPosition > 0.5) ? 
                     (i.screenPos.xy / i.screenPos.w * _Scale * 0.1) : 
                     (i.uv * _Scale);
+
+                uv += _Parallax.xy;
                 
                 float2 p = uv + float2(sin(slowTime1) * 0.3, cos(slowTime2) * 0.3);
                 

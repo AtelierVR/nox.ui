@@ -4,16 +4,16 @@ using UnityEngine;
 
 namespace Nox.UI.Runtime {
 	/// <summary>
-	/// Aide au chargement des icônes radiales : renvoie une <see cref="UniTask{Sprite}"/>
-	/// depuis un Sprite direct ou un chemin de ressource (ex : "ui:icons/close.png"),
-	/// sans code répétitif côté pages.
+	/// Helper for loading radial icons: returns a <see cref="UniTask{Sprite}"/> from a sprite
+	/// given directly or from a resource path (e.g. "ui:icons/close.png"), so the pages do not
+	/// repeat the same code.
 	/// </summary>
 	public static class RadialIcons {
-		/// <summary>Icône directe, résolue immédiatement (peut être null).</summary>
+		/// <summary>Sprite given directly, resolved immediately (can be null).</summary>
 		public static UniTask<Sprite> From(Sprite sprite)
 			=> UniTask.FromResult(sprite);
 
-		/// <summary>Icône chargée depuis une ressource (asset/bundle).</summary>
+		/// <summary>Icon loaded from a resource (asset/bundle).</summary>
 		public static UniTask<Sprite> From(ResourceIdentifier path)
 			=> PageManager.GetAssetAsync<Sprite>(path);
 	}

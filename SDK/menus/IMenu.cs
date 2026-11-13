@@ -10,13 +10,13 @@ namespace Nox.UI {
 		/// </summary>
 		/// <returns></returns>
 		public int Id { get; }
-		
+
 		/// <summary>
 		/// Get if the menu is displayed or not.
 		/// </summary>
 		/// <returns></returns>
 		public bool Active { get; set;  }
-		
+
 		/// <summary>
 		/// Get all orbiters in the menu.
 		/// </summary>

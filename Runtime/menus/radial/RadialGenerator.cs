@@ -6,33 +6,32 @@ using Nox.CCK.Language;
 
 namespace Nox.UI.Runtime {
 	/// <summary>
-	/// Construit l'affichage d'un <see cref="RadialMenu"/> à partir d'une
-	/// <see cref="IRadialPage"/>. La page ne fournit que ses éléments
-	/// (<see cref="IRadialElement"/> : libellé clé+arguments, icône, action) :
-	/// c'est ici qu'on ajoute l'élément de navigation (Back s'il y a un historique,
-	/// sinon Close) et qu'on prépare les éléments affichés.
+	/// Builds the display of a <see cref="RadialMenu"/> from an <see cref="IRadialPage"/>.
+	/// The page only provides its elements (<see cref="IRadialElement"/>: label key and
+	/// arguments, icon, action): the navigation element (Back when there is a history,
+	/// Close otherwise) is added here, along with the prepared display items.
 	/// </summary>
 	public static class RadialGenerator {
-		/// <summary>Chemin racine du menu radial.</summary>
+		/// <summary>Root path of the radial menu.</summary>
 		public const string RootPath = "/";
 
-		/// <summary>Clé de traduction de l'élément de retour (Back).</summary>
+		/// <summary>Translation key of the back element.</summary>
 		public const string BackLabelKey = "radial.back";
 
-		/// <summary>Clé de traduction de l'élément de fermeture (Close).</summary>
+		/// <summary>Translation key of the close element.</summary>
 		public const string CloseLabelKey = "radial.close";
 
-		/// <summary>Icône (ressource) de l'élément de retour (Back).</summary>
+		/// <summary>Icon (resource) of the back element.</summary>
 		public const string BackIcon = "ui:icons/keyboard_return.png";
 
-		/// <summary>Icône (ressource) de l'élément de fermeture (Close).</summary>
+		/// <summary>Icon (resource) of the close element.</summary>
 		public const string CloseIcon = "ui:icons/close.png";
 
 		/// <summary>
-		/// Prépare le menu radial pour une page : élément de navigation (Back/Close)
-		/// puis les éléments fournis par la page.
+		/// Prepares the radial menu for a page: navigation element (Back/Close) then the
+		/// elements provided by the page.
 		/// </summary>
-		public static async UniTask Build(RadialMenu menu, IRadialPage page) {
+		public static async UniTask Build(RadialMenu menu, IRadialPage page, CancellationToken cancellationToken = default) {
 			if (menu == null || menu.elements == null)
 				return;
 
@@ -40,13 +39,13 @@ namespace Nox.UI.Runtime {
 				menu.CanGoBack ? Back(menu) : Close(menu)
 			};
 
-            var content = page?.Content 
-                ?? Array.Empty<IRadialElement>();
+			var content = page?.Content
+				?? Array.Empty<IRadialElement>();
 			foreach (var element in content)
 				if (element != null)
 					items.Add(FromElement(menu, element));
 
-			await menu.elements.SetItems(items.ToArray());
+			await menu.elements.SetItems(items.ToArray(), cancellationToken);
 		}
 
 		private static RadialElementData FromElement(RadialMenu menu, IRadialElement element) {
@@ -59,7 +58,7 @@ namespace Nox.UI.Runtime {
 				click = action switch {
 					IPageAction page => ct => ExecutePage(menu, page, ct),
 					null => null,
-					_    => ct => Execute(action, ct),
+					_ => ct => Execute(action, ct),
 				},
 			};
 		}
@@ -76,9 +75,9 @@ namespace Nox.UI.Runtime {
 		private static async UniTask Execute(IRadialElementAction action, CancellationToken ct) {
 			if (action.DelayBeforeExecution > 0)
 				await UniTask.Delay(
-                    TimeSpan.FromMilliseconds(action.DelayBeforeExecution), 
-                    cancellationToken: ct
-                );
+					TimeSpan.FromMilliseconds(action.DelayBeforeExecution),
+					cancellationToken: ct
+				);
 			await action.Execute(ct);
 		}
 

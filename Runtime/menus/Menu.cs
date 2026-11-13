@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
+using Nox.CCK.Theme;
 using Nox.CCK.Utils;
 using Nox.UI.audio;
 using Nox.UI.modals;
@@ -136,7 +138,9 @@ namespace Nox.UI.Runtime {
 							Key              = "time",
 							text             = "time",
 							Flags            = NavigationFlags.Enable,
-							GetCustomContent = async tr => await PageManager.GetAssetAsync<GameObject>("prefabs/time.prefab").InstantiateAsync(tr),
+							GetCustomContent = async (tr, ct) => await PageManager
+								.GetAssetAsync<GameObject>("prefabs/time.prefab", ct)
+								.InstantiateAsync(tr, cancellationToken: ct),
 							executionType    = NavigationExecution.None,
 						},
 						new() {
@@ -188,35 +192,40 @@ namespace Nox.UI.Runtime {
 		}
 
 		private void Start() {
-			StartAsync().Forget();
+			StartAsync(this.GetCancellationTokenOnDestroy()).Forget();
 			Client.SendGoto(Id, defaultKey, defaultArguments);
 		}
 
-		private async UniTask StartAsync() {
+		private async UniTask StartAsync(CancellationToken cancellationToken) {
 			foreach (var o in GetInternalOrbiters())
-			foreach (var p in o.GetInternalParts()) {
-				p.SetActive(false);
-				p.menu = this;
-			}
-
-			var tasks = (from data
-					in GetDefaultData()
-				let part = GetPart(data.Key)
-				select part.AddElements(data.Value.ToArray()));
-
-			await UniTask.WhenAll(tasks);
-
-			foreach (var o in GetInternalOrbiters())
-			foreach (var p in o.GetInternalParts())
-				if (p.GetChildren().Length > 0) {
-					p.SetActive(true);
-					UpdateLayout.UpdateImmediate(p.container);
+				foreach (var p in o.GetInternalParts()) {
+					p.SetActive(false);
+					p.menu = this;
 				}
 
-			await UniTask.NextFrame();
+			var tasks = from data
+					in GetDefaultData()
+						let part = GetPart(data.Key)
+						select part.AddElements(data.Value.ToArray(), cancellationToken);
+
+			if (await UniTask.WhenAll(tasks).SuppressCancellationThrow())
+				return;
+
+			foreach (var o in GetInternalOrbiters())
+				foreach (var p in o.GetInternalParts())
+					if (p.GetChildren().Length > 0) {
+						p.SetActive(true);
+						UpdateLayout.UpdateImmediate(p.container);
+					}
+
+			await UniTask.NextFrame(cancellationToken: cancellationToken);
 			UpdateLayout.UpdateImmediate(gameObject);
-			await UniTask.NextFrame();
+			await UniTask.NextFrame(cancellationToken: cancellationToken);
 			UpdateLayout.UpdateImmediate(gameObject);
+
+			RaycastTrimmer.Trim(gameObject);
+
+			gameObject.GetOrAddComponent<ThemedRoot>();
 		}
 
 		public int Id
@@ -263,14 +272,19 @@ namespace Nox.UI.Runtime {
 		public IPage GetCurrent()
 			=> History.GetCurrent();
 
-		public async UniTask SetPage(IPage newPage, IPage oldPage = null, PageFlags flags = PageFlags.None) {
+		public async UniTask SetPage(
+			IPage newPage,
+			IPage oldPage = null,
+			PageFlags flags = PageFlags.None,
+			CancellationToken cancellationToken = default
+		) {
 			try {
 				if (newPage == null) {
 					oldPage?.OnHide(null);
 					return;
 				}
 
-				var content = await newPage.GetContentAsync(contentContainer);
+				var content = await newPage.GetContentAsync(contentContainer, cancellationToken);
 				if (!content) {
 					Debug.LogError($"Page {newPage.GetKey()} does not have content.");
 					return;
@@ -282,7 +296,7 @@ namespace Nox.UI.Runtime {
 					rect.anchorMax = Vector2.one;
 					rect.offsetMin = Vector2.zero;
 					rect.offsetMax = Vector2.zero;
-					rect.pivot     = new Vector2(0.5f, 0.5f);
+					rect.pivot = new Vector2(0.5f, 0.5f);
 				}
 
 				foreach (Transform child in contentContainer)
@@ -302,6 +316,10 @@ namespace Nox.UI.Runtime {
 				content.SetActive(true);
 
 				UpdateLayout.UpdateImmediate(content);
+				RaycastTrimmer.Trim(content);
+				content.GetOrAddComponent<ThemedRoot>();
+				ThemeManager.Apply(content);
+			} catch (OperationCanceledException) {
 			} catch (Exception e) {
 				Logger.LogError(e);
 			}
@@ -310,18 +328,41 @@ namespace Nox.UI.Runtime {
 		public bool activeForeground;
 		public IModal[] Modals = Array.Empty<IModal>();
 
+		/// <summary>Reference key of the veils a page and the zones of the orbiters bring with them.</summary>
+		private const string FOREGROUND = "foreground";
+
+		/// <summary>Reference key of the transparent layer that catches the click meant for what it covers.</summary>
+		private const string INTERACTION = "modal_interaction";
+
 		public RectTransform GetModalContainer()
 			=> modalContainer;
 
 		public bool GetActiveForeground()
 			=> activeForeground;
 
+		/// <summary>
+		/// Shows or hides what covers the menu while a modal is open: the veils of the page, the veils of the orbiter
+		/// zones, and the transparent layer that dismisses a closable modal.
+		/// <para>
+		/// Everything about a veil is authored, not built here: its colour, its shape, the corner it is rounded with,
+		/// the raycasts it keeps (<see cref="RaycastBlocker"/>) and the click that dismisses (<see cref="ModalDismiss"/>)
+		/// live in <c>foreground.prefab</c> and in the menu prefab. A zone with nothing to click simply has no veil.
+		/// </para>
+		/// </summary>
 		private void UpdateForeground() {
-			var li = new List<GameObject>();
-			li.AddRange(Reference.GetReferences("foreground", contentContainer.gameObject));
-			li.AddRange(Reference.GetReferences("modal_interaction", gameObject));
-			foreach (var go in li)
+			foreach (var go in Reference.GetReferences(FOREGROUND, gameObject))
+				if (go)
+					go.SetActive(activeForeground);
+
+			foreach (var go in Reference.GetReferences(INTERACTION, gameObject)) {
+				if (!go)
+					continue;
+
+				if (!modalContainer || go.transform.parent != modalContainer.parent)
+					go.transform.SetAsLastSibling();
+
 				go.SetActive(activeForeground);
+			}
 		}
 
 		public void SetActiveForeground(bool active) {

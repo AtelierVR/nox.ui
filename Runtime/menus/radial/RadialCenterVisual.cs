@@ -24,7 +24,7 @@ namespace Nox.UI.Runtime {
         }
 
         /// <summary>
-        /// Affiche l'icône de la page courante au centre (masque si null).
+        /// Displays the current page icon in the center (hides it when null).
         /// </summary>
         public void SetIcon(Sprite sprite) {
             if (Icon == null)
