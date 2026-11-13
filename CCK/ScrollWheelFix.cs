@@ -24,16 +24,13 @@ namespace Nox.CCK.UI {
 	/// </summary>
 	[AddComponentMenu("Nox/UI/Scroll Wheel Fix")]
 	[DisallowMultipleComponent]
-	// Update before the EventSystem so we can measure whether the native scroll happened.
 	[DefaultExecutionOrder(-1000)]
 	public class ScrollWheelFix : MonoBehaviour {
-		// Target + position of its content, sampled in Update (before the EventSystem): if the
-		// position changes by LateUpdate, Unity scrolled natively.
 		private ScrollRect _target;
-		private Vector2    _positionBefore;
-		private bool       _armed;
+		private Vector2 _positionBefore;
+		private bool _armed;
 
-		private PointerEventData             _pointer;
+		private PointerEventData _pointer;
 		private readonly List<RaycastResult> _results = new List<RaycastResult>();
 
 		private void Update() {
@@ -54,7 +51,7 @@ namespace Nox.CCK.UI {
 				return;
 
 			_positionBefore = _target.content.anchoredPosition;
-			_armed          = true;
+			_armed = true;
 		}
 
 		private void LateUpdate() {
@@ -71,25 +68,31 @@ namespace Nox.CCK.UI {
 			if (Mathf.Approximately(delta, 0f))
 				return;
 
-			// The content moved between Update and LateUpdate: the native event did reach the
-			// ScrollRect, Unity already scrolled it → do nothing.
 			if (target.content.anchoredPosition != _positionBefore)
 				return;
 
-			// Otherwise the hovered element swallowed the event: push the wheel ourselves.
 			_pointer.scrollDelta = new Vector2(0f, delta);
 			target.OnScroll(_pointer);
 		}
 
 		/// <summary>Closest ScrollRect under the cursor, through the UI raycast.</summary>
 		private ScrollRect ResolveTarget() {
-			_pointer.position = Mouse.current.position.ReadValue();
+			if (!UIPointer.TryRead(out var position, out _))
+				return null;
+
+			_pointer.position = position;
 
 			_results.Clear();
 			EventSystem.current.RaycastAll(_pointer, _results);
 
-			var top = _results.Count > 0 ? _results[0].gameObject : null;
-			return top ? top.GetComponentInParent<ScrollRect>() : null;
+			var top = _results.Count > 0
+				? _results[0].gameObject
+				: null;
+			if (!top)
+				return null;
+
+			var scroll = top.GetComponentInParent<ScrollRect>();
+			return scroll;
 		}
 
 		/// <summary>
@@ -106,9 +109,12 @@ namespace Nox.CCK.UI {
 					return 0f;
 
 				var eventSystem = EventSystem.current;
-				var module = eventSystem ? eventSystem.currentInputModule as InputSystemUIInputModule : null;
+				var module = eventSystem
+					? eventSystem.currentInputModule as InputSystemUIInputModule
+					: null;
 
-				return mouse.scroll.ReadValue().y * (module ? module.scrollDeltaPerTick : 1f);
+				return mouse.scroll.ReadValue().y
+					* (module ? module.scrollDeltaPerTick : 1f);
 			}
 		}
 	}
