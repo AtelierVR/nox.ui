@@ -29,29 +29,44 @@ namespace Nox.CCK.UI {
 		private ScrollRect _target;
 		private Vector2 _positionBefore;
 		private bool _armed;
+		private float _delta;
+		private Vector2 _position;
 
 		private PointerEventData _pointer;
 		private readonly List<RaycastResult> _results = new List<RaycastResult>();
+		private readonly List<UiPointerState> _pointers = new();
 
 		private void Update() {
 			_armed = false;
 
-			if (Mathf.Approximately(ScrollDelta, 0f))
+			var count = UIPointer.Read(_pointers);
+			for (var i = 0; i < count; i++) {
+				var state = _pointers[i];
+				var delta = UIPointer.Sources.Count > 0
+					? state.Scroll
+					: ScrollDelta;
+
+				if (Mathf.Approximately(delta, 0f))
+					continue;
+
+				var eventSystem = EventSystem.current;
+				if (eventSystem == null)
+					return;
+
+				if (_pointer == null)
+					_pointer = new PointerEventData(eventSystem);
+
+				var target = ResolveTarget(state);
+				if (!target || !target.content)
+					continue;
+
+				_target = target;
+				_positionBefore = target.content.anchoredPosition;
+				_delta = delta;
+				_position = state.Position;
+				_armed = true;
 				return;
-
-			var eventSystem = EventSystem.current;
-			if (eventSystem == null)
-				return;
-
-			if (_pointer == null)
-				_pointer = new PointerEventData(eventSystem);
-
-			_target = ResolveTarget();
-			if (!_target || !_target.content)
-				return;
-
-			_positionBefore = _target.content.anchoredPosition;
-			_armed = true;
+			}
 		}
 
 		private void LateUpdate() {
@@ -64,23 +79,31 @@ namespace Nox.CCK.UI {
 			if (!target || !target.content)
 				return;
 
-			var delta = ScrollDelta;
-			if (Mathf.Approximately(delta, 0f))
+			if (Mathf.Approximately(_delta, 0f))
 				return;
 
 			if (target.content.anchoredPosition != _positionBefore)
 				return;
 
-			_pointer.scrollDelta = new Vector2(0f, delta);
+			_pointer.position = _position;
+			_pointer.scrollDelta = new Vector2(0f, _delta);
 			target.OnScroll(_pointer);
 		}
 
-		/// <summary>Closest ScrollRect under the cursor, through the UI raycast.</summary>
-		private ScrollRect ResolveTarget() {
-			if (!UIPointer.TryRead(out var position, out _))
+		/// <summary>Closest ScrollRect under the pointer.</summary>
+		private ScrollRect ResolveTarget(in UiPointerState state) {
+			if (state.HasTarget) {
+				var hovered = state.Hit.gameObject;
+				return hovered ? hovered.GetComponentInParent<ScrollRect>() : null;
+			}
+
+			if (state.HasWorld)
 				return null;
 
-			_pointer.position = position;
+			if (!EventSystem.current)
+				return null;
+
+			_pointer.position = state.Position;
 
 			_results.Clear();
 			EventSystem.current.RaycastAll(_pointer, _results);
@@ -91,8 +114,7 @@ namespace Nox.CCK.UI {
 			if (!top)
 				return null;
 
-			var scroll = top.GetComponentInParent<ScrollRect>();
-			return scroll;
+			return top.GetComponentInParent<ScrollRect>();
 		}
 
 		/// <summary>
