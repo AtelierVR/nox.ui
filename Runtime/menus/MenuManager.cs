@@ -42,7 +42,10 @@ namespace Nox.UI.Runtime {
 			}
 
 			_menus.Remove(menu);
-			menu.Dispose();
+
+			if (!IsDestroyed(menu))
+				menu.Dispose();
+
 			_client.CoreAPI.EventAPI.Emit("menu_removed", menu);
 			return;
 
@@ -69,18 +72,30 @@ namespace Nox.UI.Runtime {
 			if (menu == null)
 				return;
 			_radialMenus.Remove(menu);
-			menu.Dispose();
+
+			if (!IsDestroyed(menu))
+				menu.Dispose();
 		}
 
 		public void Dispose() {
 			foreach (var menu in _menus)
-				menu.Dispose();
+				if (!IsDestroyed(menu))
+					menu.Dispose();
 			_menus.Clear();
 
 			foreach (var menu in _radialMenus)
-				menu.Dispose();
+				if (!IsDestroyed(menu))
+					menu.Dispose();
 			_radialMenus.Clear();
 		}
+
+		/// <summary>
+		/// A menu is instantiated under the proxy of its provider and is destroyed with it, before
+		/// nox.ui is disposed: disposing a destroyed menu would throw.
+		/// </summary>
+		private static bool IsDestroyed<T>(T menu)
+			where T : class
+			=> menu is UnityEngine.Object o && o.IsDestroyed();
 
 		public async UniTask<Menu> Make(IMenuProvider container, CancellationToken cancellationToken = default) {
 			if (container == null) {

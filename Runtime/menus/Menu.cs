@@ -255,8 +255,10 @@ namespace Nox.UI.Runtime {
 		public void Dispose() {
 			Active = false;
 			History?.Clear();
+
 			foreach (Transform child in contentContainer)
 				child.gameObject.Destroy();
+
 			History = null;
 		}
 
