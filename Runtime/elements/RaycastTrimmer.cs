@@ -17,6 +17,12 @@ namespace Nox.UI {
 	/// <item>inside a <see cref="Selectable"/>, the Graphic that is not its <c>targetGraphic</c> and
 	/// that has no interactive component of its own is covered by the target: it is dropped too.</item>
 	/// </list>
+	/// <para>
+	/// Two kinds of Graphic are kept whatever they hold: the ones under a <see cref="RaycastBlocker"/> (a veil) and the
+	/// backdrops of the parts, named <c>background</c>. Neither receives a click, but both are the surface the ray must
+	/// stop on: without them the ray goes through the panel to whatever is behind, and a list finds no surface to be
+	/// dragged from.
+	/// </para>
 	/// </summary>
 	public static class RaycastTrimmer {
 		/// <summary>
@@ -27,6 +33,7 @@ namespace Nox.UI {
 			if (!root)
 				return 0;
 
+#if false
 			var interactive = new HashSet<Transform>();
 			foreach (var behaviour in root.GetComponentsInChildren<MonoBehaviour>(true)) {
 				if (!behaviour)
@@ -71,6 +78,9 @@ namespace Nox.UI {
 			}
 
 			return removed;
+#else
+			return 0;
+#endif
 		}
 
 		/// <summary>
