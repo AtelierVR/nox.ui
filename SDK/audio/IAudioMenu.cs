@@ -1,7 +1,7 @@
 using Nox.CCK.Utils;
 using UnityEngine;
 
-namespace Nox.UI.audio {
+namespace Nox.UI.Audio {
 	public enum MenuSound {
 		Click,
 		Hover,

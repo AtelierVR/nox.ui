@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Utils;
-using Nox.UI.audio;
+using Nox.UI.Audio;
 using UnityEngine;
 
 namespace Nox.UI.Runtime {

@@ -2,7 +2,7 @@ using System;
 using Nox.UI.Runtime;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Utils;
-using Nox.UI.audio;
+using Nox.UI.Audio;
 using UnityEngine;
 using UnityEngine.Audio;
 using Logger = Nox.CCK.Utils.Logger;
@@ -42,10 +42,10 @@ namespace Nox.UI.Runtime {
 
 			// Detach: create a root-level AudioSource that survives deactivation
 			var go = new GameObject("[AudioMenu] Detached");
-			
+
 			go.transform.position   = gameObject.transform.position;
 			go.transform.rotation   = gameObject.transform.rotation;
-			
+
 			go.DontDestroyOnLoad();
 			var src = go.AddComponent<AudioSource>();
 			if (candidate) {

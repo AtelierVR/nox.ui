@@ -1,7 +1,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace Nox.UI.audio {
+namespace Nox.UI.Audio {
 	public interface IAudioPlay {
 		/// <summary>
 		/// Whether the audio has finished playing.

@@ -5,7 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Theme;
 using Nox.CCK.Utils;
-using Nox.UI.audio;
+using Nox.UI.Audio;
 using Nox.UI.modals;
 using UnityEngine;
 using Logger = Nox.CCK.Utils.Logger;
