@@ -49,8 +49,8 @@ namespace Nox.CCK.UI {
 		[SerializeField, Min(0f), Tooltip("Movement (metres for a hand, EventSystem pixels for the mouse) a press must travel before it scrolls the list.")]
 		private float dragDeadzone = 0.014f;
 
-		[SerializeField, Min(0f), Tooltip("Part of the movement of a hand given to the list: below one, the content scrolls slower than the hand. The mouse always drags one to one.")]
-		private float dragSpeed = 0.4f;
+		[SerializeField, Min(0f), Tooltip("Part of the movement of a hand given to the list: below one, the content scrolls slower than the hand (and the pointer slides on the rows). The mouse always drags one to one.")]
+		private float dragSpeed = 1f;
 
 		/// <summary>
 		/// Frames a pointer may be missing from the pointer list before its drag ends. A hand that drops out for a frame
@@ -289,7 +289,8 @@ namespace Nox.CCK.UI {
 
 		/// <summary>
 		/// Largest part of a movement that keeps the content inside the visible area: the list stops exactly on its own ends
-		/// when it is clamped, and resists when it is elastic, exactly like a native drag.
+		/// when it is clamped, and resists when it is elastic, exactly like a native drag. A content smaller than the view is
+		/// held inside the view instead of being frozen (nothing to scroll, but the grab still answers).
 		/// </summary>
 		private static Vector2 Limit(ScrollRect scroll, RectTransform view, Vector2 delta) {
 			var content = scroll.content;
@@ -300,8 +301,8 @@ namespace Nox.CCK.UI {
 			var max  = (Vector2)view.InverseTransformPoint(content.TransformPoint(content.rect.max));
 			var rect = view.rect;
 
-			delta.x = Axis(scroll, scroll.horizontal, delta.x, rect.xMax - max.x, rect.xMin - min.x, rect.width);
-			delta.y = Axis(scroll, scroll.vertical, delta.y, rect.yMax - max.y, rect.yMin - min.y, rect.height);
+			delta.x = Axis(scroll, scroll.horizontal, delta.x, Mathf.Min(rect.xMin - min.x, rect.xMax - max.x), Mathf.Max(rect.xMin - min.x, rect.xMax - max.x), rect.width);
+			delta.y = Axis(scroll, scroll.vertical, delta.y, Mathf.Min(rect.yMin - min.y, rect.yMax - max.y), Mathf.Max(rect.yMin - min.y, rect.yMax - max.y), rect.height);
 
 			return delta;
 		}
@@ -313,9 +314,6 @@ namespace Nox.CCK.UI {
 
 			if (scroll.movementType == ScrollRect.MovementType.Unrestricted)
 				return delta;
-
-			if (low > high)
-				return 0f;
 
 			var clamped = Mathf.Clamp(delta, low, high);
 
