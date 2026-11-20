@@ -45,16 +45,21 @@ namespace Nox.UI.Runtime {
 			=> GetCoreAPI().EventAPI.Emit(DisplayEvent, menuId, page);
 
 		public static void SendGoto(int menuId, string key, params object[] args)
-			=> GetCoreAPI()
-				.EventAPI.Emit(
-					GotoEvent, new object[] { menuId, key }.Concat(args).ToArray()
-				);
+			=> GetCoreAPI().EventAPI.Emit(GotoEvent, Wrap(menuId, key, args));
 
 		public static void SendRadialGoto(int menuId, string path, params object[] args)
-			=> GetCoreAPI()
-				.EventAPI.Emit(
-					RadialGotoEvent, new object[] { menuId, path }.Concat(args).ToArray()
-				);
+			=> GetCoreAPI().EventAPI.Emit(RadialGotoEvent, Wrap(menuId, path, args));
+
+		private static object[] Wrap(int menuId, string key, object[] args) {
+			if (args == null || args.Length == 0)
+				return new object[] { menuId, key };
+
+			var data = new object[args.Length + 2];
+			data[0] = menuId;
+			data[1] = key;
+			Array.Copy(args, 0, data, 2, args.Length);
+			return data;
+		}
 
 		private void OnAction(EventData context) {
 			if (!context.TryGet(0, out int id) || !context.TryGet(1, out string action)) return;
@@ -81,10 +86,12 @@ namespace Nox.UI.Runtime {
 		private void OnDisplay(EventData context) {
 			if (!context.TryGet(0, out int id)) return;
 			var menu = _client.Manager.Get<IMenu>(id);
+			if (menu == null) return;
 			context.TryGet(1, out IPage page);
 			if (context.TryGet(1, out Dictionary<string, object> data))
 				page = ActionPage.From(data);
 			if (page == null) return;
+			if (ReferenceEquals(menu.GetCurrent(), page)) return;
 			menu.Go(page);
 		}
 

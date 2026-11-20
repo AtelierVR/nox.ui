@@ -15,6 +15,12 @@ namespace Nox.UI.Runtime {
 			=> _menu = menu;
 
 		public void Add(IPage page) {
+			if (page == null)
+				return;
+
+			if (_current >= 0 && _current < _cache.Count && ReferenceEquals(_cache[_current], page))
+				return;
+
 			var crt = GetCurrent();
 			if (_current < _cache.Count - 1)
 				RemoveRange(_current + 1, _cache.Count - _current - 1);

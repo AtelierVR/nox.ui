@@ -104,15 +104,6 @@ namespace Nox.UI.Runtime {
 							executionType      = NavigationExecution.Goto,
 						},
 						new() {
-							Key = "mute",
-							// text               = "mute",
-							Icon               = "ui:icons/unmute.png",
-							Action             = "mute",
-							Flags              = NavigationFlags.Button,
-							ExecutionArguments = new object[] { },
-							executionType      = NavigationExecution.Event
-						},
-						new() {
 							Key = "session",
 							// text               = "sessions",
 							Icon               = "ui:icons/group.png",
@@ -191,10 +182,8 @@ namespace Nox.UI.Runtime {
 			History = new HistoryList(this);
 		}
 
-		private void Start() {
-			StartAsync(this.GetCancellationTokenOnDestroy()).Forget();
-			Client.SendGoto(Id, defaultKey, defaultArguments);
-		}
+		private void Start()
+			=> StartAsync(this.GetCancellationTokenOnDestroy()).Forget();
 
 		private async UniTask StartAsync(CancellationToken cancellationToken) {
 			foreach (var o in GetInternalOrbiters())
@@ -226,6 +215,8 @@ namespace Nox.UI.Runtime {
 			RaycastTrimmer.Trim(gameObject);
 
 			gameObject.GetOrAddComponent<ThemedRoot>();
+
+			Client.SendGoto(Id, defaultKey, defaultArguments);
 		}
 
 		public int Id
@@ -285,6 +276,8 @@ namespace Nox.UI.Runtime {
 					oldPage?.OnHide(null);
 					return;
 				}
+
+				await UniTask.Yield(cancellationToken);
 
 				var content = await newPage.GetContentAsync(contentContainer, cancellationToken);
 				if (!content) {
