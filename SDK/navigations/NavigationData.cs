@@ -12,6 +12,7 @@ namespace Nox.UI {
 
 		public Texture2D                            icon;
 		public ResourceIdentifier                   Icon;
+		public Color                                tint = new(0f, 0f, 0f, 0f);
 		public string                               text;
 		public string[]                             textArguments;
 		public string                               tooltip;
@@ -20,5 +21,9 @@ namespace Nox.UI {
 		public string                               Action;
 		public object[]                             ExecutionArguments;
 		public NavigationFlags                      Flags;
+
+		public string                               DoubleAction;
+		public NavigationExecution                  doubleExecutionType = NavigationExecution.Event;
+		public object[]                             DoubleExecutionArguments;
 	}
 }

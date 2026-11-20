@@ -27,6 +27,10 @@ namespace Nox.UI.Runtime {
 				.Select(e => e.GetData())
 				.ToArray();
 
+		public IElement GetElement(string key)
+			=> GetChildren()
+				.FirstOrDefault(e => e.GetData()?.Key == key);
+
 		public virtual void RemoveElement(string key) {
 			foreach (var el in GetChildren()) {
 				if (el.GetData().Key != key)

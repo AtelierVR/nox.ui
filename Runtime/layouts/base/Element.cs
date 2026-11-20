@@ -1,6 +1,8 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Language;
+using Nox.CCK.Theme;
+using Nox.CCK.UI;
 using Nox.CCK.Utils;
 using UnityEngine;
 using Logger = Nox.CCK.Utils.Logger;
@@ -8,7 +10,7 @@ using UnityEngine.UI;
 using Transform = UnityEngine.Transform;
 
 namespace Nox.UI.Runtime {
-	public class Element : MonoBehaviour {
+	public class Element : MonoBehaviour, IElement {
 		[SerializeField]
 		public NavigationData data;
 
@@ -24,16 +26,61 @@ namespace Nox.UI.Runtime {
 		public GameObject contentContainer;
 		public GameObject customContainer;
 
+		private float _pendingClickAt = -1f;
+
+		public int GetId()
+			=> ComponentExtension.GetId(this);
+
 		public NavigationData GetData()
 			=> data;
 
+		private bool HasDoubleAction
+			=> data != null && !string.IsNullOrEmpty(data.DoubleAction);
+
+		private float DoublePressDelay
+			=> UISettings.DoublePressDelay;
+
 		private void OnClick() {
-			if (data.executionType == NavigationExecution.Event)
-				PageManager.GetCoreAPI().EventAPI.Emit(data.Action, data.ExecutionArguments);
-			else if (data.executionType == NavigationExecution.Goto)
-				PageManager.SendGoto(menu.Id, data.Action, data.ExecutionArguments);
-			else if (data.executionType == NavigationExecution.Action)
-				PageManager.SendAction(menu.Id, data.Action);
+			if (!HasDoubleAction) {
+				Execute(data.executionType, data.Action, data.ExecutionArguments);
+				return;
+			}
+
+			var now = Time.unscaledTime;
+
+			if (_pendingClickAt >= 0f && now - _pendingClickAt < DoublePressDelay) {
+				_pendingClickAt = -1f;
+				OnDoublePress();
+				return;
+			}
+
+			_pendingClickAt = now;
+		}
+
+		private void OnDoublePress()
+			=> Execute(data.doubleExecutionType, data.DoubleAction, data.DoubleExecutionArguments);
+
+		private void Execute(NavigationExecution executionType, string action, object[] arguments) {
+			if (string.IsNullOrEmpty(action) || !menu)
+				return;
+
+			if (executionType == NavigationExecution.Event)
+				PageManager.GetCoreAPI().EventAPI.Emit(action, arguments);
+			else if (executionType == NavigationExecution.Goto)
+				PageManager.SendGoto(menu.Id, action, arguments);
+			else if (executionType == NavigationExecution.Action)
+				PageManager.SendAction(menu.Id, action);
+		}
+
+		private void Update() {
+			if (_pendingClickAt < 0f)
+				return;
+
+			if (Time.unscaledTime - _pendingClickAt < DoublePressDelay)
+				return;
+
+			_pendingClickAt = -1f;
+			Execute(data.executionType, data.Action, data.ExecutionArguments);
 		}
 
 		private void Start()
@@ -82,6 +129,9 @@ namespace Nox.UI.Runtime {
 				contentContainer?.SetActive(true);
 			}
 
+			if (d.tint.a > 0f)
+				SetTint(d.tint);
+
 			if (button) {
 				button.onClick.RemoveListener(OnClick);
 				button.interactable = d.Flags.HasFlag(NavigationFlags.Interactive);
@@ -90,14 +140,65 @@ namespace Nox.UI.Runtime {
 			}
 		}
 
+		public void SetIcon(Texture2D texture) {
+			if (!icon)
+				return;
+
+			icon.sprite = texture ? SpriteConvertor.Convert(texture) : null;
+			icon.gameObject.SetActive(icon.sprite);
+			iconContainer?.SetActive(icon.sprite);
+		}
+
+		public void SetIcon(ResourceIdentifier resource)
+			=> SetIconAsync(resource, this.GetCancellationTokenOnDestroy()).Forget();
+
+		private async UniTaskVoid SetIconAsync(ResourceIdentifier resource, CancellationToken cancellationToken) {
+			if (!icon || !resource.IsValid())
+				return;
+
+			var sprite = await PageManager.GetAssetAsync<Sprite>(resource, cancellationToken);
+			if (!icon)
+				return;
+
+			icon.sprite = sprite;
+			icon.gameObject.SetActive(sprite);
+			iconContainer?.SetActive(sprite);
+
+			if (!sprite)
+				Logger.LogWarning($"Failed to load icon for navigation element: {resource}", gameObject);
+		}
+
+		public void SetTint(Color tint) {
+			var themed = TargetTheme();
+			if (!themed)
+				return;
+
+			themed.SetTint(tint);
+			themed.Apply(ThemeManager.Current);
+		}
+
+		public void ClearTint() {
+			if (!button || !button.targetGraphic)
+				return;
+
+			if (!button.targetGraphic.TryGetComponent<ThemedElement>(out var themed))
+				return;
+
+			themed.ClearTint();
+			themed.Apply(ThemeManager.Current);
+		}
+
+		private ThemedElement TargetTheme() {
+			if (!button || !button.targetGraphic)
+				return null;
+
+			return button.targetGraphic.gameObject.GetOrAddComponent<ThemedElement>();
+		}
+
 		private async UniTaskVoid UpdateTexture(Image image, NavigationData d, CancellationToken cancellationToken) {
 			var texture = d.icon;
 			if (texture) {
-				image.sprite = Sprite.Create(
-					texture,
-					new Rect(0, 0, texture.width, texture.height),
-					new Vector2(0.5f, 0.5f)
-				);
+				image.sprite = SpriteConvertor.Convert(texture);
 				image.gameObject.SetActive(image.sprite);
 				return;
 			}

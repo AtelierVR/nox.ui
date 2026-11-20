@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Nox.CCK.Utils;
@@ -43,29 +44,54 @@ namespace Nox.UI.Runtime {
 			UpdateBacks(this.GetCancellationTokenOnDestroy()).Forget();
 		}
 
+		private bool _updatingBacks;
+		private bool _backsOutdated;
+
 		private async UniTask UpdateBacks(CancellationToken cancellationToken = default) {
-			// present backs
+			if (_updatingBacks) {
+				_backsOutdated = true;
+				return;
+			}
+
+			_updatingBacks = true;
+
+			try {
+				do {
+					_backsOutdated = false;
+					await SyncBacks(cancellationToken);
+				} while (_backsOutdated);
+			} finally {
+				_updatingBacks = false;
+			}
+		}
+
+		private async UniTask SyncBacks(CancellationToken cancellationToken) {
 			var present = GetChildren();
 			var keys = new HashSet<int>();
 
 			foreach (var entry in present)
 				keys.Add(entry.GetId());
+
 			var prefab = await GetBack(cancellationToken);
 			if (!prefab || !backContainer)
 				return;
 
-			// add backs for each present element
-			foreach (var entry in present) {
-				if (backContainer.Find(entry.GetId().ToString("x8"))) continue;
-				var back = await prefab.InstantiateAsync(backContainer, cancellationToken: cancellationToken);
-				if (!back) return;
-				back.name = entry.GetId().ToString("x8");
+			var seen = new HashSet<int>();
+
+			foreach (RectTransform entry in backContainer) {
+				if (!int.TryParse(entry.name, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var id)
+					|| !keys.Contains(id)
+					|| !seen.Add(id))
+					entry.gameObject.Destroy();
 			}
 
-			// remove backs for each absent element
-			foreach (RectTransform entry in backContainer) {
-				if (keys.Contains(int.Parse(entry.name, System.Globalization.NumberStyles.HexNumber))) continue;
-				entry.gameObject.Destroy();
+			// add backs for each present element
+			foreach (var entry in present) {
+				var id = entry.GetId();
+				if (!seen.Add(id)) continue;
+				var back = await prefab.InstantiateAsync(backContainer, cancellationToken: cancellationToken);
+				if (!back) return;
+				back.name = id.ToString("x8");
 			}
 		}
 	}

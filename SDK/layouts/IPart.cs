@@ -31,6 +31,12 @@ namespace Nox.UI {
 		public NavigationData[] GetElements();
 
 		/// <summary>
+		/// Get the element of a key, or <c>null</c>.
+		/// </summary>
+		/// <param name="key">Key of the element.</param>
+		public IElement GetElement(string key);
+
+		/// <summary>
 		/// Remove an element from the part.
 		/// </summary>
 		public void RemoveElement(string key);
