@@ -150,7 +150,7 @@ namespace Nox.UI.Runtime {
 				Client.Instance.CoreAPI.EventAPI.Subscribe("widget_removed", RemoveWidget),
 			};
 
-			RequestWidgets();
+			RequestWidgetsAsync().Forget();
 		}
 
 		public void OnDisplay(IPage lastPage)
@@ -170,15 +170,19 @@ namespace Nox.UI.Runtime {
 			UpdateGridder().Forget();
 		}
 
-		private void RequestWidgets() {
+		private async UniTaskVoid RequestWidgetsAsync() {
 			if (!_widgetContent || !_widgetPrefab)
 				return;
 
-			List<IWidget> widgets = new();
+			var widgets = new List<IWidget>();
 
 			foreach (var widget in _widgetContent.GetComponentsInChildren<IWidget>(true))
 				if (widget is MonoBehaviour mb)
 					mb.gameObject.Destroy();
+
+			await UniTask.Yield();
+			if (!_widgetContent || !_widgetPrefab)
+				return;
 
 			Client.Instance.CoreAPI.EventAPI.Emit(
 				"widget_request",
@@ -187,9 +191,11 @@ namespace Nox.UI.Runtime {
 				new Action<object[]>(Callback)
 			);
 
-			foreach (var widget in widgets.Where(widget => widget != null))
-				AddWidget(widget);
-			UpdateGridder().Forget();
+			foreach (var widget in widgets)
+				if (widget != null)
+					AddWidget(widget);
+
+			await UpdateGridder();
 
 			return;
 
