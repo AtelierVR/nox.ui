@@ -36,6 +36,11 @@
       "register": "git+https://github.com/AtelierVR/nox.audio.git"
     },
     {
+      "id": "settings",
+      "type": "recommends",
+      "register": "git+https://github.com/AtelierVR/nox.settings.git"
+    },
+    {
       "id": "nox.cck",
       "type": "depends",
       "register": "git+https://github.com/AtelierVR/nox.cck.git"

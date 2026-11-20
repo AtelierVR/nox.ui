@@ -8,6 +8,8 @@
         "Nox.UI",
         "Nox.Widgets",
         "Nox.CCK.UI",
+        "Nox.CCK.Settings",
+        "Nox.Settings",
         "Nox.Audio",
         "Nox.CCK.Audio",
         "Unity.InputSystem"
